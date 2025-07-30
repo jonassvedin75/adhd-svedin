@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936618528132",
+    "project_id": "adhd-svedin",
+    "storage_bucket": "adhd-svedin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936618528132:android:b07f1679bc1f452be361d1",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuofSirjbIMw_3LsoFGgOpaLQRKFt84fY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
