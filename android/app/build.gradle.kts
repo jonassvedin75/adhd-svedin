@@ -37,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.myapp"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = localProperties().getProperty("flutter.versionCode", "1").toInt()
         versionName = localProperties().getProperty("flutter.versionName", "1.0")

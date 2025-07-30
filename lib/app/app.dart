@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/app/core/theme/app_theme.dart';
-import 'package:myapp/app/router.dart'; // Importera den nya routern
+import 'package:ai_kodhjalp/app/core/theme/app_theme.dart';
+import 'package:ai_kodhjalp/app/router.dart'; // Importera den nya routern
 
 class AdhdSupportApp extends StatelessWidget {
   const AdhdSupportApp({super.key});

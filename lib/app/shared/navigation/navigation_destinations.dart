@@ -1,23 +1,88 @@
 import 'package:flutter/material.dart';
 
-// --- DESKTOP/TABLET: Navigation Rail (Alla länkar) ---
-const List<NavigationRailDestination> navRailDestinations = [
-  NavigationRailDestination(icon: Icon(Icons.check_circle_outline), selectedIcon: Icon(Icons.check_circle), label: Text('ToDo')),
-  NavigationRailDestination(icon: Icon(Icons.psychology_outlined), selectedIcon: Icon(Icons.psychology), label: Text('AI Coach')),
-  NavigationRailDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: Text('Planera')),
-  NavigationRailDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield), label: Text('Kaos (Oro)')),
-  NavigationRailDestination(icon: Icon(Icons.timer_outlined), selectedIcon: Icon(Icons.timer), label: Text('Pomodoro')),
-  NavigationRailDestination(icon: Icon(Icons.sentiment_satisfied_alt_outlined), selectedIcon: Icon(Icons.sentiment_satisfied_alt), label: Text('Humör')),
-  NavigationRailDestination(icon: Icon(Icons.lightbulb_outline), selectedIcon: Icon(Icons.lightbulb), label: Text('Lösning')),
-  NavigationRailDestination(icon: Icon(Icons.link_outlined), selectedIcon: Icon(Icons.link), label: Text('Analys')),
-  NavigationRailDestination(icon: Icon(Icons.star_outline), selectedIcon: Icon(Icons.star), label: Text('Belöning')),
+// Renamed to avoid conflict with Flutter's own NavigationDestination
+class AppNavigationDestination {
+  final String path;
+  final String label;
+  final IconData icon;
+  final IconData selectedIcon;
+
+  const AppNavigationDestination({
+    required this.path,
+    required this.label,
+    required this.icon,
+    required this.selectedIcon,
+  });
+}
+
+// ALL destinations for the Drawer
+const List<AppNavigationDestination> allNavigationDestinations = [
+  AppNavigationDestination(
+    path: '/dashboard',
+    label: 'Dashboard',
+    icon: Icons.dashboard_outlined,
+    selectedIcon: Icons.dashboard,
+  ),
+  AppNavigationDestination(
+    path: '/todo',
+    label: 'To-Do',
+    icon: Icons.check_box_outline_blank,
+    selectedIcon: Icons.check_box,
+  ),
+   AppNavigationDestination(
+    path: '/planning',
+    label: 'Planering',
+    icon: Icons.edit_calendar_outlined,
+    selectedIcon: Icons.edit_calendar,
+  ),
+  AppNavigationDestination(
+    path: '/pomodoro',
+    label: 'Timer',
+    icon: Icons.timer_outlined,
+    selectedIcon: Icons.timer,
+  ),
+  AppNavigationDestination(
+    path: '/kaos',
+    label: 'Kaos',
+    icon: Icons.storm_outlined,
+    selectedIcon: Icons.storm,
+  ),
+  AppNavigationDestination(
+    path: '/mood',
+    label: 'Humör',
+    icon: Icons.sentiment_satisfied_outlined,
+    selectedIcon: Icons.sentiment_satisfied,
+  ),
+   AppNavigationDestination(
+    path: '/chain',
+    label: 'Beteendekedja',
+    icon: Icons.link_outlined,
+    selectedIcon: Icons.link,
+  ),
+   AppNavigationDestination(
+    path: '/solving',
+    label: 'Problemlösning',
+    icon: Icons.lightbulb_outline,
+    selectedIcon: Icons.lightbulb,
+  ),
+  AppNavigationDestination(
+    path: '/rewards',
+    label: 'Belöning',
+    icon: Icons.star_outline,
+    selectedIcon: Icons.star,
+  ),
+  AppNavigationDestination(
+    path: '/coach',
+    label: 'AI Coach',
+    icon: Icons.computer_outlined,
+    selectedIcon: Icons.computer,
+  ),
 ];
 
-
-// --- MOBIL: Bottom Navigation Bar (4 huvudlänkar) ---
-const List<Widget> navBarDestinations = [
-  NavigationDestination(icon: Icon(Icons.check_circle_outline), selectedIcon: Icon(Icons.check_circle), label: 'ToDo'),
-  NavigationDestination(icon: Icon(Icons.psychology_outlined), selectedIcon: Icon(Icons.psychology), label: 'Coach'),
-  NavigationDestination(icon: Icon(Icons.calendar_today_outlined), selectedIcon: Icon(Icons.calendar_today), label: 'Planera'),
-  NavigationDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield), label: 'Kaos'),
+// The FOUR specific destinations for the Bottom Navigation Bar
+final List<AppNavigationDestination> bottomNavigationDestinations = [
+  allNavigationDestinations[1], // To-Do
+  allNavigationDestinations[2], // Planering
+  allNavigationDestinations[3], // Timer
+  allNavigationDestinations[4], // Kaos
 ];

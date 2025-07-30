@@ -2,80 +2,191 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  Widget build(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    return Scaffold(
+      body: Center(
+        child: isSmallScreen
+            ? const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [_Logo(), _FormContent()],
+              )
+            : Container(
+                padding: const EdgeInsets.all(32.0),
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: const Row(
+                  children: [
+                    Expanded(child: _Logo()),
+                    Expanded(child: Center(child: _FormContent())),
+                  ],
+                ),
+              ),
+      ),
+    );
+  }
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _Logo extends StatelessWidget {
+  const _Logo();
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FlutterLogo(size: isSmallScreen ? 100 : 200),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            "Skapa ditt konto",
+            textAlign: TextAlign.center,
+            style: isSmallScreen
+                ? Theme.of(context).textTheme.headlineSmall
+                : Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FormContent extends StatefulWidget {
+  const _FormContent();
+
+  @override
+  State<_FormContent> createState() => __FormContentState();
+}
+
+class __FormContentState extends State<_FormContent> {
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   String? _errorMessage;
 
   Future<void> _register() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _errorMessage = 'Lösenorden matchar inte.';
-      });
-      return;
-    }
-    try {
-      setState(() => _errorMessage = null);
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      // Om registreringen lyckas, omdirigera till login
-      if (mounted) {
-        context.go('/login');
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        setState(() => _errorMessage = null);
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        // Router redirect will handle navigation to dashboard
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _errorMessage = e.message ?? "Ett okänt fel inträffade.";
+        });
       }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _errorMessage = e.message;
-      });
     }
+  }
+
+   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Registrera konto')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 300),
+      child: Form(
+        key: _formKey,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
+            TextFormField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'E-post'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Lösenord'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(labelText: 'Bekräfta lösenord'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Vänligen ange din e-post.';
+                bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value);
+                if (!emailValid) return 'Vänligen ange en giltig e-postadress.';
+                return null;
+              },
+              decoration: const InputDecoration(
+                labelText: 'E-post',
+                hintText: 'Ange din e-post',
+                prefixIcon: Icon(Icons.email_outlined),
+                border: OutlineInputBorder(),
               ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _register,
-              child: const Text('Registrera'),
             ),
+            _gap(),
+            TextFormField(
+              controller: _passwordController,
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Vänligen ange ett lösenord.';
+                if (value.length < 6) return 'Lösenordet måste vara minst 6 tecken.';
+                return null;
+              },
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: 'Lösenord',
+                hintText: 'Ange ditt lösenord',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(_isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                ),
+              ),
+            ),
+            _gap(),
+            TextFormField(
+              controller: _confirmPasswordController,
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Vänligen bekräfta ditt lösenord.';
+                if (value != _passwordController.text) return 'Lösenorden matchar inte.';
+                return null;
+              },
+              obscureText: !_isConfirmPasswordVisible,
+              decoration: InputDecoration(
+                labelText: 'Bekräfta Lösenord',
+                hintText: 'Ange ditt lösenord igen',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(_isConfirmPasswordVisible ? Icons.visibility_off : Icons.visibility),
+                  onPressed: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                ),
+              ),
+            ),
+            _gap(),
+            if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+                onPressed: _register,
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text('Registrera', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
+            _gap(),
             TextButton(
               onPressed: () => context.go('/login'),
               child: const Text('Har du redan ett konto? Logga in'),
@@ -85,4 +196,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  Widget _gap() => const SizedBox(height: 16);
 }
