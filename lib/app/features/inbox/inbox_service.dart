@@ -23,7 +23,9 @@ class InboxItem {
     return InboxItem(
       id: doc.id,
       content: data['content'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      createdAt: data['createdAt'] != null 
+          ? (data['createdAt'] as Timestamp).toDate()
+          : DateTime.now(),
       userId: data['userId'] ?? '',
       isProcessed: data['isProcessed'] ?? false,
     );
@@ -64,59 +66,99 @@ class FirestoreService {
 
   // Lägg till nytt item
   Future<void> addItem(String content) async {
-    if (content.trim().isEmpty || _userId.isEmpty) return;
+    if (content.trim().isEmpty || _userId.isEmpty) {
+      throw Exception('Ogiltig inmatning eller användare inte inloggad');
+    }
 
-    final item = InboxItem(
-      id: '', // Firestore genererar ID
-      content: content.trim(),
-      createdAt: DateTime.now(),
-      userId: _userId,
-    );
+    try {
+      final item = InboxItem(
+        id: '', // Firestore genererar ID
+        content: content.trim(),
+        createdAt: DateTime.now(),
+        userId: _userId,
+      );
 
-    await _firestore
-        .collection('inbox_items')
-        .add(item.toFirestore());
+      await _firestore
+          .collection('inbox_items')
+          .add(item.toFirestore());
+    } catch (e) {
+      print('Error adding item to Firestore: $e');
+      throw Exception('Kunde inte spara i databasen: $e');
+    }
   }
 
   // Hämta alla items för användaren
   Stream<List<InboxItem>> getItemsStream() {
     if (_userId.isEmpty) return Stream.value([]);
 
-    return _firestore
-        .collection('inbox_items')
-        .where('userId', isEqualTo: _userId)
-        .where('isProcessed', isEqualTo: false)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => InboxItem.fromFirestore(doc))
-          .toList();
-    });
+    try {
+      return _firestore
+          .collection('inbox_items')
+          .where('userId', isEqualTo: _userId)
+          .where('isProcessed', isEqualTo: false)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs
+            .map((doc) => InboxItem.fromFirestore(doc))
+            .toList();
+      }).handleError((error) {
+        print('Error in getItemsStream: $error');
+        
+        // Check if it's an index error and provide helpful message
+        if (error.toString().contains('failed-precondition') && 
+            error.toString().contains('index')) {
+          print('⚠️ Firestore index missing. Please create the required index.');
+          print('📋 Index needed for: inbox_items collection with fields: isProcessed, userId, createdAt');
+          print('🔗 Check the create_firestore_index.md file for instructions');
+        }
+        
+        // Return empty list as fallback
+        return <InboxItem>[];
+      });
+    } catch (e) {
+      print('Error setting up items stream: $e');
+      return Stream.value([]);
+    }
   }
 
   // Markera item som bearbetat
   Future<void> markAsProcessed(String itemId) async {
-    await _firestore
-        .collection('inbox_items')
-        .doc(itemId)
-        .update({'isProcessed': true});
+    try {
+      await _firestore
+          .collection('inbox_items')
+          .doc(itemId)
+          .update({'isProcessed': true});
+    } catch (e) {
+      print('Error marking item as processed: $e');
+      throw Exception('Kunde inte uppdatera item: $e');
+    }
   }
 
   // Ta bort item
   Future<void> deleteItem(String itemId) async {
-    await _firestore
-        .collection('inbox_items')
-        .doc(itemId)
-        .delete();
+    try {
+      await _firestore
+          .collection('inbox_items')
+          .doc(itemId)
+          .delete();
+    } catch (e) {
+      print('Error deleting item: $e');
+      throw Exception('Kunde inte ta bort item: $e');
+    }
   }
 
   // Uppdatera item content
   Future<void> updateItem(String itemId, String content) async {
-    await _firestore
-        .collection('inbox_items')
-        .doc(itemId)
-        .update({'content': content.trim()});
+    try {
+      await _firestore
+          .collection('inbox_items')
+          .doc(itemId)
+          .update({'content': content.trim()});
+    } catch (e) {
+      print('Error updating item: $e');
+      throw Exception('Kunde inte uppdatera item: $e');
+    }
   }
 }
 

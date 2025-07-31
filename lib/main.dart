@@ -8,6 +8,7 @@ import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
+// import 'dart:html' if (dart.library.html) 'dart:html'; // Only for web
 
 void main() async {
   // Säkerställer att all Flutter-bindning är initierad
@@ -31,22 +32,29 @@ void main() async {
     );
     print('🎉 Firebase initialized successfully');
     
-    // Konfigurera Firestore för web
-    if (kIsWeb) {
+    // Konfigurera Firestore settings för bättre prestanda och multi-tab support
+    try {
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true, // Enable persistence for better offline support
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        sslEnabled: true,
+        // Enable multi-tab synchronization to prevent persistence conflicts
+        experimentalForceOwningTab: false, // Allow shared access
+      );
+      print('✅ Firestore settings configured successfully (persistence enabled with multi-tab support)');
+    } catch (e) {
+      print('⚠️ Firestore settings configuration failed: $e');
+      // Fallback till grundläggande settings utan persistence om det misslyckas
       try {
-        await FirebaseFirestore.instance.enablePersistence();
-        print('✅ Firestore persistence enabled');
-      } catch (e) {
-        print('⚠️ Firestore persistence not available: $e');
-        // Fortsätt ändå
+        FirebaseFirestore.instance.settings = const Settings(
+          persistenceEnabled: false, // Disable persistence as fallback
+          cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+        );
+        print('✅ Firestore fallback settings applied (persistence disabled)');
+      } catch (fallbackError) {
+        print('❌ Firestore fallback settings also failed: $fallbackError');
       }
     }
-    
-    // Konfigurera Firestore settings för bättre prestanda
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
     
     // Nu startar vi den riktiga appen
     runApp(
