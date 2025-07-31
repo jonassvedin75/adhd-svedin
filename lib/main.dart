@@ -18,10 +18,16 @@ void main() async {
     iOSSecurityConfig.configure();
   }
   
-  // Initialiserar Firebase med den autogenererade konfigurationen
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialiserar Firebase med felhantering
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization error: $e');
+    // Fortsätt ändå - appen kan fungera offline
+  }
   
   runApp(const AdhdSupportApp());
 }
