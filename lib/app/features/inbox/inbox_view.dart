@@ -22,9 +22,10 @@ class InboxView extends ConsumerWidget {
             // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Titel på egen rad
                   Text(
                     'Inkorg',
                     style: TextStyle(
@@ -33,48 +34,42 @@ class InboxView extends ConsumerWidget {
                       color: Color(0xFF111827),
                     ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.go('/tasks'),
-                        icon: const Icon(FontAwesomeIcons.listCheck, size: 20),
-                        tooltip: 'Uppgifter',
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFF10B981).withValues(alpha: 0.1),
-                          foregroundColor: const Color(0xFF10B981),
+                  const SizedBox(height: 16),
+                  // Navigation chips på egen rad, responsiva
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        // Lika breda, nedtonade grå navigation chips
+                        _buildNavChip(
+                          context: context,
+                          icon: FontAwesomeIcons.listCheck,
+                          label: 'Uppgifter',
+                          onTap: () => context.go('/tasks'),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () => context.go('/projects'),
-                        icon: const Icon(FontAwesomeIcons.layerGroup, size: 20),
-                        tooltip: 'Projekt',
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                          foregroundColor: const Color(0xFF3B82F6),
+                        const SizedBox(width: 8),
+                        _buildNavChip(
+                          context: context,
+                          icon: FontAwesomeIcons.layerGroup,
+                          label: 'Projekt',
+                          onTap: () => context.go('/projects'),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () => context.go('/someday'),
-                        icon: const Icon(FontAwesomeIcons.lightbulb, size: 20),
-                        tooltip: 'Idéer',
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFFFBBF24).withValues(alpha: 0.1),
-                          foregroundColor: const Color(0xFFFBBF24),
+                        const SizedBox(width: 8),
+                        _buildNavChip(
+                          context: context,
+                          icon: FontAwesomeIcons.lightbulb,
+                          label: 'Idéer',
+                          onTap: () => context.go('/someday'),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        onPressed: () => context.go('/reference'),
-                        icon: const Icon(FontAwesomeIcons.bookBookmark, size: 20),
-                        tooltip: 'Referens',
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-                          foregroundColor: const Color(0xFF8B5CF6),
+                        const SizedBox(width: 8),
+                        _buildNavChip(
+                          context: context,
+                          icon: FontAwesomeIcons.bookBookmark,
+                          label: 'Referens',
+                          onTap: () => context.go('/reference'),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -87,47 +82,111 @@ class InboxView extends ConsumerWidget {
                 children: [
                   TextField(
                     controller: textController,
+                    maxLines: null, // Tillåt flera rader för längre tankar
                     decoration: InputDecoration(
                       hintText: 'Vad tänker du på?',
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF9CA3AF),
+                        fontSize: 16,
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                        borderSide: BorderSide(color: Color(0xFF3B82F6), width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
                       ),
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.all(16),
                     ),
                     onSubmitted: (value) => _addItem(ref, textController),
                   ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
+                  const SizedBox(height: 16),
+                  FilledButton(
                     onPressed: () => _addItem(ref, textController),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B82F6),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF059669), // Lugn grön istället för blå
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 56), // Material Design standard höjd
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(12), // Mindre radius för modernare look
                       ),
-                      elevation: 2,
+                      elevation: 1, // Mindre elevation för lugnare känsla
                     ),
-                    child: const Text(
-                      'Fånga tanken',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.psychology, // Hjärn-ikon för "fånga tanken"
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Fånga tanken',
+                          style: TextStyle(
+                            fontSize: 16, // Mindre text för bättre läsbarhet
+                            fontWeight: FontWeight.w500, // Normal weight istället för bold
+                            letterSpacing: 0.5, // Bättre läsbarhet
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
+              ),
+            ),
+            
+            // Instruktioner för användaren
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0EA5E9).withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF0EA5E9).withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 20,
+                          color: const Color(0xFF0EA5E9),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Så här sorterar du dina tankar:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF0EA5E9),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '1. Skriv din tanke eller idé ovan\n2. Tryck "Fånga tanken" för att spara\n3. Klicka på din skapade tanke för att välja kategori',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: const Color(0xFF374151),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -137,7 +196,15 @@ class InboxView extends ConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: inboxAsyncValue.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => const Center(
+                    child: Text(
+                      'Laddar inkorgen...',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ),
                   error: (err, stack) => Center(child: Text('Fel: $err')),
                   data: (items) {
                     if (items.isEmpty) {
@@ -171,9 +238,15 @@ class InboxView extends ConsumerWidget {
 
   Widget _buildListItem(BuildContext context, InboxItem item) {
     return Card(
-      elevation: 0,
+      elevation: 2,
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: const Color(0xFF0EA5E9).withOpacity(0.1),
+          width: 1,
+        ),
+      ),
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
@@ -187,9 +260,25 @@ class InboxView extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(
-            item.content,
-            style: TextStyle(fontSize: 16, color: Color(0xFF374151)),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.content,
+                  style: TextStyle(
+                    fontSize: 16, 
+                    color: Color(0xFF374151),
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              // Visuell indikation att objektet är klickbart
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Color(0xFF0EA5E9).withOpacity(0.6),
+              ),
+            ],
           ),
         ),
       ),
@@ -202,25 +291,94 @@ class InboxView extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '🧘',
+            '🌱',
             style: TextStyle(fontSize: 48),
           ),
           SizedBox(height: 16),
           Text(
-            'Huvudet är tomt.',
+            'Rent bord, klart huvud',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.black54,
+              color: Color(0xFF059669),
             ),
           ),
           SizedBox(height: 8),
           Text(
-            'Skriv något ovan för att fånga en tanke!',
+            'Alla dina tankar är sorterade!\n\nNär du får en ny tanke eller idé,\nskriv den ovan så slipper du komma ihåg den.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.black45),
+            style: TextStyle(fontSize: 16, color: Color(0xFF6B7280)),
+          ),
+          SizedBox(height: 24),
+          // Påminnelse om navigationsknapparna
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Utforska dina sorterade tankar:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Använd knapparna ovan för att se Uppgifter, Projekt, Idéer och Referens',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper method för att skapa Material Design 3 navigation chips
+  Widget _buildNavChip({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: const Color(0xFFF3F4F6), // Nedtonat grå istället för färgad
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: const Color(0xFF6B7280), // Grå ikon
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF6B7280), // Grå text
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -112,7 +112,7 @@ const List<AppNavigationDestination> allNavigationDestinations = [
 // The FOUR specific destinations for the Bottom Navigation Bar
 final List<AppNavigationDestination> bottomNavigationDestinations = [
   allNavigationDestinations[2], // Inbox
-  allNavigationDestinations[4], // Planering 
-  allNavigationDestinations[5], // Timer
-  allNavigationDestinations[6], // Kaos
+  allNavigationDestinations[7], // Planering 
+  allNavigationDestinations[8], // Timer
+  allNavigationDestinations[9], // Kaos
 ];

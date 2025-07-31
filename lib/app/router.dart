@@ -36,7 +36,7 @@ final router = GoRouter(
       path: '/',
       redirect: (context, state) {
         final loggedIn = FirebaseAuth.instance.currentUser != null;
-        return loggedIn ? '/inbox' : '/login';
+        return loggedIn ? '/dashboard' : '/login';
       },
     ),
     GoRoute(
@@ -130,16 +130,11 @@ final router = GoRouter(
     final loggedIn = FirebaseAuth.instance.currentUser != null;
     final loggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
-    // Debug logging
-    print('🔍 Router redirect: loggedIn=$loggedIn, location=${state.matchedLocation}');
-
     if (!loggedIn && !loggingIn) {
-      print('➡️ Redirecting to login');
       return '/login';
     }
     
     if (loggedIn && loggingIn) {
-      print('➡️ User logged in, redirecting to inbox');
       return '/inbox'; 
     }
     

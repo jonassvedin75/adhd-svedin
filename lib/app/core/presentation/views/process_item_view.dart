@@ -33,56 +33,11 @@ class ProcessItemView extends ConsumerWidget {
           ),
         ),
         centerTitle: true,
-        actions: [
-          // Debug-knapp
-          IconButton(
-            icon: const Icon(Icons.bug_report, color: Color(0xFF3B82F6)),
-            onPressed: () async {
-              await processingService.checkFirebaseStatus();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('User: ${currentUser?.email ?? 'Inte inloggad'}\nUID: ${currentUser?.uid ?? 'N/A'}'),
-                    duration: const Duration(seconds: 4),
-                  ),
-                );
-              }
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           children: [
-            // Debug info (ta bort senare)
-            if (currentUser != null)
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Inloggad som: ${currentUser.email ?? currentUser.uid}',
-                  style: const TextStyle(fontSize: 12, color: Colors.green),
-                ),
-              )
-            else
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Inte inloggad!',
-                  style: TextStyle(fontSize: 12, color: Colors.red),
-                ),
-              ),
-            
             // Item to Process
             Container(
               margin: const EdgeInsets.only(top: 24, bottom: 32),
@@ -250,19 +205,6 @@ class ProcessItemView extends ConsumerWidget {
                   }
                 }
               },
-            ),
-            const SizedBox(height: 16),
-            
-            // Debug-knapp (ta bort senare)
-            ElevatedButton(
-              onPressed: () async {
-                await processingService.checkFirebaseStatus();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('🔍 Debug: Kolla Firebase'),
             ),
           ],
         ),

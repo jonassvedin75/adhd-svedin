@@ -67,30 +67,100 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Session info
-              _buildSessionInfo(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > 600;
               
-              // Main timer
-              Expanded(
-                child: VisualTimer(
-                  initialDuration: _isBreakTime ? _selectedBreakInterval : _selectedWorkInterval,
-                  primaryColor: _isBreakTime ? Colors.green : AppColors.primary,
-                  onComplete: _onSessionComplete,
-                  onStart: _onSessionStart,
-                ),
-              ),
-              
-              // Interval selection
-              _buildIntervalSelection(),
-              
-              // Task input
-              if (!_isBreakTime) _buildTaskInput(),
-              
-              const SizedBox(height: 20),
-            ],
+              if (isWideScreen) {
+                return _buildWideLayout();
+              } else {
+                return _buildNarrowLayout();
+              }
+            },
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideLayout() {
+    return Row(
+      children: [
+        // Left side - Timer
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                _buildSessionInfo(),
+                Expanded(
+                  child: VisualTimer(
+                    initialDuration: _isBreakTime ? _selectedBreakInterval : _selectedWorkInterval,
+                    primaryColor: _isBreakTime ? Colors.green : AppColors.primary,
+                    onComplete: _onSessionComplete,
+                    onStart: _onSessionStart,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Right side - Controls
+        Expanded(
+          flex: 1,
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildIntervalSelection(),
+                const SizedBox(height: 16),
+                if (!_isBreakTime) _buildTaskInput(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNarrowLayout() {
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height - 
+                     AppBar().preferredSize.height - 
+                     MediaQuery.of(context).padding.top - 
+                     MediaQuery.of(context).padding.bottom,
+        ),
+        child: Column(
+          children: [
+            // Session info
+            _buildSessionInfo(),
+            
+            // Main timer - constrained height
+            Container(
+              height: 300,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: VisualTimer(
+                initialDuration: _isBreakTime ? _selectedBreakInterval : _selectedWorkInterval,
+                primaryColor: _isBreakTime ? Colors.green : AppColors.primary,
+                onComplete: _onSessionComplete,
+                onStart: _onSessionStart,
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Interval selection
+            _buildIntervalSelection(),
+            
+            // Task input
+            if (!_isBreakTime) _buildTaskInput(),
+            
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -105,9 +175,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -119,43 +189,74 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
               Icon(
                 _isBreakTime ? Icons.coffee : Icons.work,
                 color: _isBreakTime ? Colors.green : AppColors.primary,
-                size: 24,
+                size: 28,
               ),
-              const SizedBox(width: 8),
-              Text(
-                _isBreakTime ? 'Vila och återhämta' : 'Fokuserad arbetstid',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  _isBreakTime ? 'Vila och återhämta' : 'Fokuserad arbetstid',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
           ),
           
           if (_completedPomodoros > 0) ...[
-            const SizedBox(height: 12),
-            Text(
-              'Genomförda sessioner idag: $_completedPomodoros',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Genomförda sessioner idag: $_completedPomodoros',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
           
           if (_currentTaskName.isNotEmpty && !_isBreakTime) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Arbetar med: $_currentTaskName',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.primary.withOpacity(0.2),
+                  width: 1,
                 ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Arbetar med:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _currentTaskName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -166,11 +267,18 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
   Widget _buildIntervalSelection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,33 +287,58 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             _isBreakTime ? 'Pauslängd:' : 'Fokustid:',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            children: (_isBreakTime ? _breakIntervals : _workIntervals).map((duration) {
-              final isSelected = duration == (_isBreakTime ? _selectedBreakInterval : _selectedWorkInterval);
-              return FilterChip(
-                label: Text('${duration.inMinutes}m'),
-                selected: isSelected,
-                onSelected: (_) {
-                  setState(() {
-                    if (_isBreakTime) {
-                      _selectedBreakInterval = duration;
-                    } else {
-                      _selectedWorkInterval = duration;
-                    }
-                  });
-                },
-                selectedColor: (_isBreakTime ? Colors.green : AppColors.primary).withOpacity(0.2),
-                backgroundColor: Colors.grey[100],
-              );
-            }).toList(),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 400) {
+                // Wide layout - use Row with spacing
+                return Row(
+                  children: (_isBreakTime ? _breakIntervals : _workIntervals)
+                      .map((duration) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: _buildIntervalChip(duration),
+                            ),
+                          ))
+                      .toList(),
+                );
+              } else {
+                // Narrow layout - use Wrap
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: (_isBreakTime ? _breakIntervals : _workIntervals)
+                      .map((duration) => _buildIntervalChip(duration))
+                      .toList(),
+                );
+              }
+            },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIntervalChip(Duration duration) {
+    final isSelected = duration == (_isBreakTime ? _selectedBreakInterval : _selectedWorkInterval);
+    return FilterChip(
+      label: Text('${duration.inMinutes}m'),
+      selected: isSelected,
+      onSelected: (_) {
+        setState(() {
+          if (_isBreakTime) {
+            _selectedBreakInterval = duration;
+          } else {
+            _selectedWorkInterval = duration;
+          }
+        });
+      },
+      selectedColor: (_isBreakTime ? Colors.green : AppColors.primary).withOpacity(0.2),
+      backgroundColor: Colors.grey[100],
+      showCheckmark: false,
     );
   }
 
@@ -216,6 +349,13 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,16 +364,30 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
             'Vad ska du fokusera på?',
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 14,
+              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           TextField(
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Skriv vad du ska jobba med...',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              filled: true,
+              fillColor: Colors.grey[50],
             ),
+            maxLines: 2,
             onChanged: (value) {
               setState(() {
                 _currentTaskName = value;

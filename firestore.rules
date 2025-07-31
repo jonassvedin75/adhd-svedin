@@ -16,6 +16,38 @@ service cloud.firestore {
         request.auth.uid == request.resource.data.userId;
     }
     
+    // Inbox items - privat för varje användare
+    match /inbox_items/{itemId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Projekt - privat för varje användare
+    match /projects/{projectId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Someday/Maybe items - privat för varje användare
+    match /someday_items/{itemId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Reference items - privat för varje användare
+    match /reference_items/{itemId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
     // Humördata - privat för varje användare
     match /moods/{moodId} {
       allow read, write: if request.auth != null && 

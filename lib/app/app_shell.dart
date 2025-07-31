@@ -73,31 +73,12 @@ class AppShell extends StatelessWidget {
           ),
         ],
       ),
-      body: Row(
-        children: [
-          if (MediaQuery.of(context).size.width > 900)
-            NavigationRail(
-              selectedIndex: selectedBottomIndex > -1 ? selectedBottomIndex : 0,
-              onDestinationSelected: (index) {
-                context.go(bottomNavigationDestinations[index].path);
-              },
-              labelType: NavigationRailLabelType.all,
-              destinations: bottomNavigationDestinations.map((d) {
-                return NavigationRailDestination(
-                  icon: Icon(d.icon),
-                  selectedIcon: Icon(d.selectedIcon),
-                  label: Text(d.label),
-                );
-              }).toList(),
-            ),
-          Expanded(
-            child: ResponsivePadding(
-              tabletPadding: const EdgeInsets.all(24),
-              child: child,
-            ),
-          ),
-        ],
+      drawer: _buildDrawer(context),
+      body: ResponsivePadding(
+        tabletPadding: const EdgeInsets.all(24),
+        child: child,
       ),
+      bottomNavigationBar: _buildBottomNav(context, selectedBottomIndex),
     );
   }
 
@@ -152,8 +133,6 @@ class AppShell extends StatelessWidget {
   }
 
   Widget _buildBottomNav(BuildContext context, int selectedBottomIndex) {
-    if (!ResponsiveLayout.isMobile(context)) return const SizedBox.shrink();
-    
     return BottomNavigationBar(
       currentIndex: selectedBottomIndex > -1 ? selectedBottomIndex : 0,
       onTap: (index) {

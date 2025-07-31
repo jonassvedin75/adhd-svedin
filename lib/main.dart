@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ai_kodhjalp/app/app.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ai_kodhjalp/firebase_options.dart';
 import 'package:ai_kodhjalp/app/core/config/production_config.dart';
 import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
@@ -29,6 +30,23 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('🎉 Firebase initialized successfully');
+    
+    // Konfigurera Firestore för web
+    if (kIsWeb) {
+      try {
+        await FirebaseFirestore.instance.enablePersistence();
+        print('✅ Firestore persistence enabled');
+      } catch (e) {
+        print('⚠️ Firestore persistence not available: $e');
+        // Fortsätt ändå
+      }
+    }
+    
+    // Konfigurera Firestore settings för bättre prestanda
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
     
     // Nu startar vi den riktiga appen
     runApp(
