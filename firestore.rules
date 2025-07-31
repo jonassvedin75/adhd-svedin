@@ -1,0 +1,88 @@
+// Firestore Security Rules för ADHD-stöd appen
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Användarregler - användare kan bara läsa/skriva sina egna data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Uppgifter (todos) - användare kan bara hantera sina egna uppgifter
+    match /tasks/{taskId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Humördata - privat för varje användare
+    match /moods/{moodId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Pomodoro-sessioner - privat för varje användare
+    match /pomodoro_sessions/{sessionId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Belöningar - privat för varje användare
+    match /rewards/{rewardId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Planeringsdata - privat för varje användare
+    match /plans/{planId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Beteendekedjor - privat för varje användare
+    match /behavior_chains/{chainId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // AI Coach-sessioner - privat för varje användare
+    match /ai_sessions/{sessionId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Problemlösningsdata - privat för varje användare
+    match /problem_solving/{problemId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Orosverktyg - privat för varje användare
+    match /worries/{worryId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Förhindra all annan åtkomst
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
