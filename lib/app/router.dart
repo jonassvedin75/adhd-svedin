@@ -28,9 +28,17 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/login',
+  initialLocation: '/',
   refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
   routes: [
+    // Root route that redirects based on auth state
+    GoRoute(
+      path: '/',
+      redirect: (context, state) {
+        final loggedIn = FirebaseAuth.instance.currentUser != null;
+        return loggedIn ? '/inbox' : '/login';
+      },
+    ),
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
