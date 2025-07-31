@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ai_kodhjalp/app/core/responsive/responsive_layout.dart';
-import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
 import 'package:ai_kodhjalp/app/core/theme/app_theme.dart';
 import 'package:ai_kodhjalp/app/shared/widgets/universal_inbox.dart';
 import 'package:ai_kodhjalp/app/shared/widgets/visual_timer.dart';
@@ -30,8 +28,8 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
   Widget build(BuildContext context) {
     final user = _auth.currentUser;
     
-    return IOSResponsiveWrapper(
-      child: ResponsiveLayout(
+    return Scaffold(
+      body: ResponsiveLayout(
         mobile: _buildMobileLayout(context, user),
         tablet: _buildTabletLayout(context, user),
         desktop: _buildDesktopLayout(context, user),
@@ -104,7 +102,7 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
                   children: [
                     _buildGentleHeaderTablet(context, user),
                     const SizedBox(height: 24),
-                    UniversalInbox(),
+                    const UniversalInbox(),
                     const SizedBox(height: 24),
                     _buildTimerCard(),
                   ],
@@ -449,7 +447,7 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
                   tileColor: Colors.grey[50],
                   onTap: () => context.go(action['route']),
                 ),
-              )).toList(),
+              )),
             ],
           ),
         ),

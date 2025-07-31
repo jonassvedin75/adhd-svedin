@@ -12,8 +12,8 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     
-    return IOSResponsiveWrapper(
-      child: ResponsiveLayout(
+    return Scaffold(
+      body: ResponsiveLayout(
         mobile: _buildMobileLayout(context, user),
         tablet: _buildTabletLayout(context, user),
         desktop: _buildDesktopLayout(context, user),
@@ -109,12 +109,12 @@ class DashboardScreen extends StatelessWidget {
           icon: const Icon(Icons.logout, color: Colors.black87),
           onPressed: () async {
             // iOS haptic feedback
-            iOSHapticFeedback.selectionClick();
+            IosHapticFeedback.selectionClick();
             
             final confirmed = await _showIOSLogoutDialog(context);
             
             if (confirmed == true) {
-              iOSHapticFeedback.mediumImpact();
+              IosHapticFeedback.mediumImpact();
               await FirebaseAuth.instance.signOut();
               if (context.mounted) {
                 context.go('/auth');
@@ -249,7 +249,7 @@ class DashboardScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -259,7 +259,7 @@ class DashboardScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           onPressed: () {
             // iOS haptic feedback för ADHD-appen
-            iOSHapticFeedback.focusConfirmation();
+            IosHapticFeedback.focusConfirmation();
             action.onTap();
           },
           child: Column(
@@ -374,7 +374,7 @@ class DashboardScreen extends StatelessWidget {
           actions: [
             CupertinoDialogAction(
               onPressed: () {
-                iOSHapticFeedback.selectionClick();
+                IosHapticFeedback.selectionClick();
                 Navigator.of(context).pop(false);
               },
               child: const Text('Avbryt'),
@@ -382,7 +382,7 @@ class DashboardScreen extends StatelessWidget {
             CupertinoDialogAction(
               isDestructiveAction: true,
               onPressed: () {
-                iOSHapticFeedback.selectionClick();
+                IosHapticFeedback.selectionClick();
                 Navigator.of(context).pop(true);
               },
               child: const Text('Logga ut'),

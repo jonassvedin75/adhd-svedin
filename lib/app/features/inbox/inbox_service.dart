@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,8 +82,8 @@ class FirestoreService {
       await _firestore
           .collection('inbox_items')
           .add(item.toFirestore());
-    } catch (e) {
-      print('Error adding item to Firestore: $e');
+    } catch (e, s) {
+      developer.log('Error adding item to Firestore', error: e, stackTrace: s);
       throw Exception('Kunde inte spara i databasen: $e');
     }
   }
@@ -102,22 +103,22 @@ class FirestoreService {
         return snapshot.docs
             .map((doc) => InboxItem.fromFirestore(doc))
             .toList();
-      }).handleError((error) {
-        print('Error in getItemsStream: $error');
+      }).handleError((error, stackTrace) {
+        developer.log('Error in getItemsStream', error: error, stackTrace: stackTrace);
         
         // Check if it's an index error and provide helpful message
         if (error.toString().contains('failed-precondition') && 
             error.toString().contains('index')) {
-          print('⚠️ Firestore index missing. Please create the required index.');
-          print('📋 Index needed for: inbox_items collection with fields: isProcessed, userId, createdAt');
-          print('🔗 Check the create_firestore_index.md file for instructions');
+          developer.log('⚠️ Firestore index missing. Please create the required index.');
+          developer.log('📋 Index needed for: inbox_items collection with fields: isProcessed, userId, createdAt');
+          developer.log('🔗 Check the create_firestore_index.md file for instructions');
         }
         
         // Return empty list as fallback
         return <InboxItem>[];
       });
-    } catch (e) {
-      print('Error setting up items stream: $e');
+    } catch (e, s) {
+      developer.log('Error setting up items stream', error: e, stackTrace: s);
       return Stream.value([]);
     }
   }
@@ -129,8 +130,8 @@ class FirestoreService {
           .collection('inbox_items')
           .doc(itemId)
           .update({'isProcessed': true});
-    } catch (e) {
-      print('Error marking item as processed: $e');
+    } catch (e, s) {
+      developer.log('Error marking item as processed', error: e, stackTrace: s);
       throw Exception('Kunde inte uppdatera item: $e');
     }
   }
@@ -142,8 +143,8 @@ class FirestoreService {
           .collection('inbox_items')
           .doc(itemId)
           .delete();
-    } catch (e) {
-      print('Error deleting item: $e');
+    } catch (e, s) {
+      developer.log('Error deleting item', error: e, stackTrace: s);
       throw Exception('Kunde inte ta bort item: $e');
     }
   }
@@ -155,8 +156,8 @@ class FirestoreService {
           .collection('inbox_items')
           .doc(itemId)
           .update({'content': content.trim()});
-    } catch (e) {
-      print('Error updating item: $e');
+    } catch (e, s) {
+      developer.log('Error updating item', error: e, stackTrace: s);
       throw Exception('Kunde inte uppdatera item: $e');
     }
   }

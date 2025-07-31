@@ -4,7 +4,6 @@ import 'package:ai_kodhjalp/app/shared/navigation/navigation_destinations.dart';
 import 'package:ai_kodhjalp/app/core/responsive/responsive_layout.dart';
 import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:io';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -27,7 +26,7 @@ class AppShell extends StatelessWidget {
       (d) => currentPath.startsWith(d.path)
     );
 
-    return iOSAdaptiveWidget(
+    return IosAdaptiveWidget(
       child: ResponsiveLayout(
         mobile: _buildMobileLayout(context, currentPage, selectedBottomIndex),
         tablet: _buildTabletLayout(context, currentPage, selectedBottomIndex),
@@ -38,7 +37,7 @@ class AppShell extends StatelessWidget {
 
   Widget _buildMobileLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
     return Scaffold(
-      appBar: iOSAppBar(
+      appBar: IosAppBar(
         title: currentPage.label,
         actions: [
           IconButton(
@@ -61,7 +60,7 @@ class AppShell extends StatelessWidget {
 
   Widget _buildTabletLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
     return Scaffold(
-      appBar: iOSAppBar(
+      appBar: IosAppBar(
         title: currentPage.label,
         actions: [
           IconButton(

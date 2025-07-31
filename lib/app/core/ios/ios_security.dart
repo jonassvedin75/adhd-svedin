@@ -7,14 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io';
 
 /// iOS-specifik säkerhet och optimering för ADHD-appen
-class iOSSecurityConfig {
+class IosSecurityConfig {
   static bool _initialized = false;
   
   /// Konfigurera iOS-specifika säkerhetsinställningar
   static Future<void> configure() async {
     if (_initialized) return;
     
-    if (Platform.isIOS || _isWebWithIOSUserAgent()) {
+    if (Platform.isIOS || _isWebWithIosUserAgent()) {
       await _configureStatusBar();
       await _configureScreenCapture();
       await _configureAccessibility();
@@ -25,7 +25,7 @@ class iOSSecurityConfig {
   }
 
   /// Kontrollera om vi är på web med iOS user agent
-  static bool _isWebWithIOSUserAgent() {
+  static bool _isWebWithIosUserAgent() {
     // För web-baserad iOS-liknande upplevelse
     return true; // Alltid aktivera iOS-stil för denna ADHD-app
   }
@@ -90,21 +90,21 @@ class iOSSecurityConfig {
 }
 
 /// iOS-anpassade widgets för ADHD-appen
-class iOSAdaptiveWidget extends StatelessWidget {
+class IosAdaptiveWidget extends StatelessWidget {
   final Widget child;
-  final bool useIOSDesign;
+  final bool useIosDesign;
   final EdgeInsets? padding;
 
-  const iOSAdaptiveWidget({
+  const IosAdaptiveWidget({
     super.key,
     required this.child,
-    this.useIOSDesign = true,
+    this.useIosDesign = true,
     this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (useIOSDesign) {
+    if (useIosDesign) {
       return SafeArea(
         child: Padding(
           padding: padding ?? const EdgeInsets.all(16.0),
@@ -117,14 +117,14 @@ class iOSAdaptiveWidget extends StatelessWidget {
 }
 
 /// iOS-anpassad AppBar för ADHD-appen
-class iOSAppBar extends StatelessWidget implements PreferredSizeWidget {
+class IosAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final Widget? leading;
   final bool automaticallyImplyLeading;
   final Color? backgroundColor;
 
-  const iOSAppBar({
+  const IosAppBar({
     super.key,
     required this.title,
     this.actions,
@@ -162,7 +162,7 @@ class iOSAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 /// iOS haptic feedback för ADHD-appen
-class iOSHapticFeedback {
+class IosHapticFeedback {
   static void lightImpact() {
     HapticFeedback.lightImpact();
   }
@@ -197,7 +197,7 @@ class iOSHapticFeedback {
 }
 
 /// iOS-stil knappar för ADHD-appen
-class iOSButton extends StatelessWidget {
+class IosButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
   final Color? backgroundColor;
@@ -205,7 +205,7 @@ class iOSButton extends StatelessWidget {
   final bool isDestructive;
   final bool isLoading;
 
-  const iOSButton({
+  const IosButton({
     super.key,
     required this.text,
     this.onPressed,
@@ -219,7 +219,7 @@ class iOSButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoButton(
       onPressed: isLoading ? null : () {
-        iOSHapticFeedback.selectionClick();
+        IosHapticFeedback.selectionClick();
         onPressed?.call();
       },
       color: isDestructive 
@@ -239,7 +239,7 @@ class iOSButton extends StatelessWidget {
 }
 
 /// iOS-stil listtile för ADHD-appen
-class iOSListTile extends StatelessWidget {
+class IosListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Widget? leading;
@@ -247,7 +247,7 @@ class iOSListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final bool showChevron;
 
-  const iOSListTile({
+  const IosListTile({
     super.key,
     required this.title,
     this.subtitle,
@@ -291,7 +291,7 @@ class iOSListTile extends StatelessWidget {
             ? const Icon(CupertinoIcons.chevron_right)
             : null),
         onTap: onTap != null ? () {
-          iOSHapticFeedback.selectionClick();
+          IosHapticFeedback.selectionClick();
           onTap!();
         } : null,
       ),

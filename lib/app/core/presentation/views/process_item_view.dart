@@ -1,7 +1,7 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../../features/inbox/inbox_service.dart';
 import '../../../features/processing/processing_service.dart';
 
@@ -13,7 +13,6 @@ class ProcessItemView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final processingService = ref.read(processingServiceProvider);
-    final currentUser = FirebaseAuth.instance.currentUser;
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -48,7 +47,7 @@ class ProcessItemView extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withAlpha(15),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -71,7 +70,7 @@ class ProcessItemView extends ConsumerWidget {
               text: 'Gör till en uppgift',
               onTap: () async {
                 try {
-                  print('Försöker skapa uppgift: ${item.content}');
+                  developer.log('Försöker skapa uppgift: ${item.content}');
                   await processingService.convertToTask(item.id, item.content);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -82,8 +81,8 @@ class ProcessItemView extends ConsumerWidget {
                     );
                     Navigator.of(context).pop();
                   }
-                } catch (e) {
-                  print('Fel vid skapande av uppgift: $e');
+                } catch (e, s) {
+                  developer.log('Fel vid skapande av uppgift', error: e, stackTrace: s);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

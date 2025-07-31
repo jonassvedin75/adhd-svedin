@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -167,36 +168,36 @@ class ProcessingService {
 
   // Debug-metod för att kontrollera Firebase-status
   Future<void> checkFirebaseStatus() async {
-    print('🔍 === FIREBASE STATUS CHECK ===');
-    print('🔐 Auth current user: ${_auth.currentUser?.email ?? 'INGEN'}');
-    print('🆔 User ID: $_userId');
+    developer.log('🔍 === FIREBASE STATUS CHECK ===');
+    developer.log('🔐 Auth current user: ${_auth.currentUser?.email ?? 'INGEN'}');
+    developer.log('🆔 User ID: $_userId');
     
     try {
       // Testa Firestore-anslutning
-      print('📡 Testar Firestore-anslutning...');
+      developer.log('📡 Testar Firestore-anslutning...');
       final testDoc = await _firestore.collection('_test').doc('test').get();
-      print('✅ Firestore funkar (test doc exists: ${testDoc.exists})');
-    } catch (e) {
-      print('❌ Firestore ERROR: $e');
+      developer.log('✅ Firestore funkar (test doc exists: ${testDoc.exists})');
+    } catch (e, s) {
+      developer.log('❌ Firestore ERROR', error: e, stackTrace: s);
     }
   }
 
   // Konvertera inbox item till task
   Future<void> convertToTask(String inboxItemId, String content) async {
     try {
-      print('🚀 Startar konvertering till task...');
-      print('📧 Current user: ${_auth.currentUser?.email ?? 'Ingen användare'}');
-      print('🆔 User ID: $_userId');
-      print('📝 Content: $content');
-      print('🔗 Inbox Item ID: $inboxItemId');
+      developer.log('🚀 Startar konvertering till task...');
+      developer.log('📧 Current user: ${_auth.currentUser?.email ?? 'Ingen användare'}');
+      developer.log('🆔 User ID: $_userId');
+      developer.log('📝 Content: $content');
+      developer.log('🔗 Inbox Item ID: $inboxItemId');
       
       // Kontrollera att användaren är inloggad
       if (_userId.isEmpty) {
-        print('❌ ERROR: Användaren är inte inloggad');
+        developer.log('❌ ERROR: Användaren är inte inloggad');
         throw Exception('Du måste vara inloggad för att skapa uppgifter');
       }
 
-      print('📦 Skapar Firestore batch...');
+      developer.log('📦 Skapar Firestore batch...');
       final batch = _firestore.batch();
 
       // STEG 1: KOPIERA - Skapa ny task
@@ -208,21 +209,20 @@ class ProcessingService {
         userId: _userId,
       );
       
-      print('✅ Task objekt skapat: ${task.toFirestore()}');
+      developer.log('✅ Task objekt skapat: ${task.toFirestore()}');
       batch.set(taskRef, task.toFirestore());
 
       // STEG 2: RADERA - Ta bort från inbox (inte bara markera som processed)
       final inboxRef = _firestore.collection('inbox_items').doc(inboxItemId);
-      print('�️ Tar bort inbox item...');
+      developer.log('🗑️ Tar bort inbox item...');
       batch.delete(inboxRef);
 
-      print('💾 Commitar batch till Firestore...');
+      developer.log('💾 Commitar batch till Firestore...');
       await batch.commit();
-      print('🎉 Task skapad och inbox item borttaget!');
+      developer.log('🎉 Task skapad och inbox item borttaget!');
       
     } catch (e, stackTrace) {
-      print('💥 ERROR i convertToTask: $e');
-      print('📋 Stack trace: $stackTrace');
+      developer.log('💥 ERROR i convertToTask', error: e, stackTrace: stackTrace);
       rethrow; // Kasta om felet så UI:t kan hantera det
     }
   }
