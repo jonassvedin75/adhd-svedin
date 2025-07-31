@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart'; // Raderad oanvänd import
 import 'package:ai_kodhjalp/app/core/theme/app_theme.dart';
 
 // --- DATAMODELL FÖR EN UPPGIFT ---
@@ -212,8 +212,8 @@ class _TodoScreenState extends State<TodoScreen> {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(
               child: Text(
-                'Du har inga uppgifter.
-Tryck på + för att lägga till en!',
+                '''Du har inga uppgifter.
+Tryck på + för att lägga till en!''',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
