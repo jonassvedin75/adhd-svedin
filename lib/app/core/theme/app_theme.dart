@@ -1,72 +1,135 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:io';
+import 'package:google_fonts/google_fonts.dart';
 
-// --- FÄRGER OCH TEMA ---
-// Centraliserad plats för appens färgpalett för enkel åtkomst och konsekvens.
+// --- Research-Based Color Palette ---
+
 class AppColors {
-  static const Color background = Color(0xFFF7F8FA);
-  static const Color text = Color(0xFF3C3C3C);
-  static const Color primary = Color(0xFF1E40AF);
-  static const Color accent = Color(0xFFFBBF24);
-  static const Color positive = Color(0xFF22C55E);
-  static const Color lightGrey = Color(0xFFE5E7EB);
+  // Base Colors
+  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color darkText = Color(0xFF1F2937);
+  static const Color cardSurface = Color(0xFFFFFFFF);
+  static const Color bordersAndIcons = Color(0xFFCBD5E1);
+
+  // Accent Colors
+  static const Color primary = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF97316);
+  static const Color danger = Color(0xFFEF4444);
   
-  // iOS-specifika färger
-  static const Color iOSBackground = Color(0xFFF2F2F7);
-  static const Color iOSSecondaryBackground = Color(0xFFFFFFFF);
+  // Special Colors
+  static const Color kaosBackground = Color(0xFF1E3A8A);
+  static const Color focusPause = Color(0xFFFBBF24);
 }
 
-// Appens övergripande tema - Mobile-First Design
-final appTheme = ThemeData(
-  scaffoldBackgroundColor: (!kIsWeb && Platform.isIOS) ? AppColors.iOSBackground : AppColors.background,
-  primaryColor: AppColors.primary,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    surface: (!kIsWeb && Platform.isIOS) ? AppColors.iOSBackground : AppColors.background,
-  ),
-  textTheme: const TextTheme(
-    bodyLarge: TextStyle(color: AppColors.text, fontSize: 16),
-    bodyMedium: TextStyle(color: AppColors.text, fontSize: 14),
-    titleLarge: TextStyle(color: AppColors.text, fontWeight: FontWeight.bold, fontSize: 22),
-    titleMedium: TextStyle(color: AppColors.text, fontWeight: FontWeight.w600, fontSize: 18),
-  ),
-  appBarTheme: AppBarTheme(
-    backgroundColor: (!kIsWeb && Platform.isIOS) ? AppColors.iOSSecondaryBackground : AppColors.background,
-    elevation: 0,
-    scrolledUnderElevation: 0,
-    iconTheme: const IconThemeData(color: AppColors.text),
-    titleTextStyle: const TextStyle(
-      color: AppColors.text,
-      fontSize: 18,
-      fontWeight: FontWeight.w600,
+
+// --- Unified App Themes ---
+
+class AppThemes {
+  static final TextTheme _baseTextTheme = GoogleFonts.interTextTheme(
+    const TextTheme(
+      displayLarge: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkText),
+      titleLarge: TextStyle(fontWeight: FontWeight.w600, color: AppColors.darkText),
+      bodyMedium: TextStyle(color: AppColors.darkText),
+      labelLarge: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
     ),
-    systemOverlayStyle: (!kIsWeb && Platform.isIOS) 
-      ? SystemUiOverlayStyle.dark
-      : SystemUiOverlayStyle.dark,
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+  );
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: AppColors.lightBackground,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: AppColors.primary,
+        onPrimary: Colors.white,
+        secondary: AppColors.success,
+        onSecondary: Colors.white,
+        error: AppColors.danger,
+        onError: Colors.white,
+        background: AppColors.lightBackground,
+        onBackground: AppColors.darkText,
+        surface: AppColors.cardSurface,
+        onSurface: AppColors.darkText,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-    ),
-  ),
-  navigationRailTheme: NavigationRailThemeData(
-    backgroundColor: AppColors.background,
-    selectedIconTheme: const IconThemeData(color: AppColors.primary),
-    unselectedIconTheme: IconThemeData(color: AppColors.text.withAlpha(153)),
-    selectedLabelTextStyle: const TextStyle(color: AppColors.primary),
-  ),
-  navigationBarTheme: NavigationBarThemeData(
-    backgroundColor: AppColors.background,
-    indicatorColor: AppColors.primary.withAlpha(26),
-    labelTextStyle: WidgetStateProperty.all(
-      const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-    ),
-  ),
-);
+      textTheme: _baseTextTheme,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.lightBackground,
+        foregroundColor: AppColors.darkText,
+        elevation: 0,
+        titleTextStyle: _baseTextTheme.titleLarge?.copyWith(fontSize: 22),
+        centerTitle: true,
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          textStyle: _baseTextTheme.labelLarge,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.cardSurface,
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: AppColors.bordersAndIcons.withOpacity(0.5)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.bordersAndIcons),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        labelStyle: TextStyle(color: AppColors.darkText.withOpacity(0.7)),
+      ),
+    );
+  }
+
+  static ThemeData get darkTheme {
+     // Based on the guide: use darkText as background, lightBackground as text
+    return lightTheme.copyWith(
+      scaffoldBackgroundColor: AppColors.darkText,
+      colorScheme: const ColorScheme(
+        brightness: Brightness.dark,
+        primary: AppColors.primary,
+        onPrimary: Colors.white,
+        secondary: AppColors.success,
+        onSecondary: Colors.white,
+        error: AppColors.danger,
+        onError: Colors.white,
+        background: AppColors.darkText,
+        onBackground: AppColors.lightBackground,
+        surface: const Color(0xFF2d3748),
+        onSurface: AppColors.lightBackground,
+      ),
+       textTheme: _baseTextTheme.apply(
+         bodyColor: AppColors.lightBackground,
+         displayColor: AppColors.lightBackground,
+       ),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF2d3748),
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: AppColors.bordersAndIcons),
+        ),
+      ),
+       inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.bordersAndIcons),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        labelStyle: TextStyle(color: AppColors.lightBackground.withOpacity(0.7)),
+      ),
+    );
+  }
+}

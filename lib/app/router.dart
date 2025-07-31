@@ -19,9 +19,8 @@ import 'package:ai_kodhjalp/app/features/worry_tool/worry_tool_screen.dart';
 import 'package:ai_kodhjalp/app/features/inbox/inbox_view.dart';
 import 'package:ai_kodhjalp/app/features/tasks/tasks_view.dart';
 import 'package:ai_kodhjalp/app/features/projects/projects_view.dart';
-import 'package:ai_kodhjalp/app/features/someday/someday_view.dart';
-import 'package:ai_kodhjalp/app/features/reference/reference_view.dart';
-
+import 'package:ai_kodhjalp/app/features/someday/ideas_view.dart';
+import 'package:ai_kodhjalp/app/features/kaos/kaos_view.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -31,7 +30,6 @@ final router = GoRouter(
   initialLocation: '/login',
   refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
   routes: [
-    // Root redirect
     GoRoute(
       path: '/',
       redirect: (context, state) {
@@ -47,6 +45,15 @@ final router = GoRouter(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
     ),
+    GoRoute(
+      path: '/kaos',
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        child: const KaosView(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
@@ -54,97 +61,70 @@ final router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: '/dashboard',
-          builder: (context, state) => const ADHDDashboard(),
-        ),
+            path: '/dashboard',
+            builder: (context, state) => const ADHDDashboard()),
         GoRoute(
-          path: '/todo',
-          builder: (context, state) => const TodoScreen(),
-        ),
+            path: '/todo', builder: (context, state) => const TodoScreen()),
         GoRoute(
-          path: '/inbox',
-          builder: (context, state) => const InboxView(),
-        ),
+            path: '/inbox', builder: (context, state) => const InboxView()),
         GoRoute(
-          path: '/tasks',
-          builder: (context, state) => const TasksView(),
-        ),
+            path: '/tasks', builder: (context, state) => const TasksView()),
         GoRoute(
-          path: '/projects',
-          builder: (context, state) => const ProjectsView(),
-        ),
+            path: '/projects',
+            builder: (context, state) => const ProjectsView()),
         GoRoute(
-          path: '/someday',
-          builder: (context, state) => const SomedayView(),
-        ),
+            path: '/ideas', builder: (context, state) => const IdeasView()),
         GoRoute(
-          path: '/reference',
-          builder: (context, state) => const ReferenceView(),
-        ),
-         GoRoute(
-          path: '/planning',
-          builder: (context, state) => const PlanningScreen(),
-        ),
+            path: '/planning',
+            builder: (context, state) => const PlanningScreen()),
         GoRoute(
-          path: '/pomodoro',
-          builder: (context, state) => const PomodoroScreen(),
-        ),
-        // The "Kaos" route points to the WorryToolScreen
+            path: '/pomodoro',
+            builder: (context, state) => const PomodoroScreen()),
         GoRoute(
-          path: '/kaos',
-          builder: (context, state) => const WorryToolScreen(),
-        ),
+            path: '/mood',
+            builder: (context, state) => const MoodTrackerScreen()),
         GoRoute(
-          path: '/mood',
-          builder: (context, state) => const MoodTrackerScreen(),
-        ),
+            path: '/chain',
+            builder: (context, state) => const BehaviorChainScreen()),
         GoRoute(
-          path: '/chain',
-          builder: (context, state) => const BehaviorChainScreen(),
-        ),
-         GoRoute(
-          path: '/solving',
-          builder: (context, state) => const ProblemSolvingScreen(),
-        ),
-        // The old worry route is kept for now to avoid breaking anything, but /kaos is the new one
-         GoRoute(
-          path: '/worry',
-          builder: (context, state) => const WorryToolScreen(),
-        ),
+            path: '/solving',
+            builder: (context, state) => const ProblemSolvingScreen()),
         GoRoute(
-          path: '/rewards',
-          builder: (context, state) => const RewardsScreen(),
-        ),
+            path: '/worry',
+            builder: (context, state) => const WorryToolScreen()),
         GoRoute(
-          path: '/coach',
-          builder: (context, state) => const AiCoachScreen(),
-        ),
+            path: '/rewards',
+            builder: (context, state) => const RewardsScreen()),
         GoRoute(
-          path: '/adhd',
-          builder: (context, state) => const ADHDDashboard(),
-        ),
+            path: '/coach',
+            builder: (context, state) => const AiCoachScreen()),
+        GoRoute(
+            path: '/adhd',
+            builder: (context, state) => const ADHDDashboard()),
       ],
     ),
   ],
   redirect: (context, state) {
     final loggedIn = FirebaseAuth.instance.currentUser != null;
-    final loggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+    final loggingIn =
+        state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
     if (!loggedIn && !loggingIn) {
       return '/login';
     }
-    
+
     if (loggedIn && loggingIn) {
-      return '/inbox'; 
+      return '/inbox';
     }
-    
+
     return null;
   },
 );
 
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
-    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+    _subscription =
+        stream.asBroadcastStream().listen((_) => notifyListeners());
   }
 
   late final StreamSubscription<dynamic> _subscription;

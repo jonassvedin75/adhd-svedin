@@ -1,15 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../processing/processing_service.dart';
+import 'package:ai_kodhjalp/app/core/services/firestore_service.dart';
 
-class TasksView extends ConsumerWidget {
+class TasksView extends StatefulWidget {
   const TasksView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tasksAsyncValue = ref.watch(tasksStreamProvider);
+  State<TasksView> createState() => _TasksViewState();
+}
 
+class _TasksViewState extends State<TasksView> {
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -31,19 +35,26 @@ class TasksView extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: tasksAsyncValue.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Fel: $err')),
-          data: (tasks) {
-            if (tasks.isEmpty) {
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _firestoreService.getItemsStream(collectionPath: 'tasks'),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Fel: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return _buildEmptyState();
             }
+
+            final tasks = snapshot.data!.docs;
             return ListView.builder(
               padding: const EdgeInsets.only(top: 16),
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
-                return _buildTaskItem(task, ref, context);
+                return _buildTaskItem(context, task);
               },
             );
           },
@@ -52,9 +63,11 @@ class TasksView extends ConsumerWidget {
     );
   }
 
-  Widget _buildTaskItem(Task task, WidgetRef ref, BuildContext context) {
-    final processingService = ref.read(processingServiceProvider);
-    
+  Widget _buildTaskItem(BuildContext context, QueryDocumentSnapshot task) {
+    final data = task.data() as Map<String, dynamic>;
+    final content = data['content'] as String? ?? 'Namnlös uppgift';
+    final isCompleted = data['isCompleted'] as bool? ?? false;
+
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -64,23 +77,28 @@ class TasksView extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            // Checkbox för att markera som klar
             Checkbox(
-              value: task.isCompleted,
+              value: isCompleted,
               onChanged: (value) async {
-                if (value == true) {
+                if (value != null) {
                   try {
-                    await processingService.completeTask(task.id);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Uppgift slutförd! 🎉'),
-                        backgroundColor: Colors.green,
-                      ),
+                    await _firestoreService.updateItem(
+                      collectionPath: 'tasks',
+                      docId: task.id,
+                      data: {'isCompleted': value},
                     );
+                    if (value == true) {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Uppgift slutförd! 🎉'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Fel: $e'),
+                        content: Text('Kunde inte uppdatera uppgiften: $e'),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -92,15 +110,11 @@ class TasksView extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                task.content,
+                content,
                 style: TextStyle(
                   fontSize: 16,
-                  color: task.isCompleted 
-                    ? const Color(0xFF9CA3AF) 
-                    : const Color(0xFF374151),
-                  decoration: task.isCompleted 
-                    ? TextDecoration.lineThrough 
-                    : TextDecoration.none,
+                  color: isCompleted ? const Color(0xFF9CA3AF) : const Color(0xFF374151),
+                  decoration: isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
                 ),
               ),
             ),
@@ -114,22 +128,15 @@ class TasksView extends ConsumerWidget {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            '✅',
-            style: TextStyle(fontSize: 48),
-          ),
-          const SizedBox(height: 16),
-          const Text(
+        children: const [
+          Text('✅', style: TextStyle(fontSize: 48)),
+          SizedBox(height: 16),
+          Text(
             'Inga uppgifter än.',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black54),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Bearbeta tankar från inkorgen för att skapa uppgifter!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.black45),

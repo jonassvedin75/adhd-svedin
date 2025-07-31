@@ -1,15 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../processing/processing_service.dart';
+import 'package:ai_kodhjalp/app/core/models/idea_model.dart';
+import 'package:ai_kodhjalp/app/core/services/firestore_service.dart';
 
-class SomedayView extends ConsumerWidget {
-  const SomedayView({super.key});
+class IdeasView extends StatefulWidget {
+  const IdeasView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final somedayAsyncValue = ref.watch(somedayStreamProvider);
+  State<IdeasView> createState() => _IdeasViewState();
+}
 
+class _IdeasViewState extends State<IdeasView> {
+  final FirestoreService _firestoreService = FirestoreService();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -20,7 +25,7 @@ class SomedayView extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Idéer & Framtid',
+          'Mina Idéer',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -31,19 +36,27 @@ class SomedayView extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: somedayAsyncValue.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Fel: $err')),
-          data: (items) {
-            if (items.isEmpty) {
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _firestoreService.getItemsStream(collectionPath: 'ideas'),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Fel: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return _buildEmptyState();
             }
+
+            final ideas = snapshot.data!.docs;
             return ListView.builder(
               padding: const EdgeInsets.only(top: 16),
-              itemCount: items.length,
+              itemCount: ideas.length,
               itemBuilder: (context, index) {
-                final item = items[index];
-                return _buildSomedayItem(item);
+                final ideaDoc = ideas[index];
+                final idea = Idea.fromFirestore(ideaDoc);
+                return _buildIdeaItem(idea);
               },
             );
           },
@@ -52,7 +65,7 @@ class SomedayView extends ConsumerWidget {
     );
   }
 
-  Widget _buildSomedayItem(SomedayItem item) {
+  Widget _buildIdeaItem(Idea idea) {
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -66,23 +79,18 @@ class SomedayView extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFFBBF24).withValues(alpha: 0.1),
+                color: const Color(0xFFF59E0B).withAlpha(30),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                FontAwesomeIcons.lightbulb,
-                color: Color(0xFFFBBF24),
-                size: 20,
-              ),
+              child: const Icon(Icons.lightbulb_outline, color: Color(0xFFF59E0B), size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                item.content,
+                idea.content,
                 style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF374151),
-                  fontStyle: FontStyle.italic, // Lite mer drömlik känsla
                 ),
               ),
             ),
@@ -96,23 +104,16 @@ class SomedayView extends ConsumerWidget {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            '💭',
-            style: TextStyle(fontSize: 48),
+        children: const [
+          Text('💡', style: TextStyle(fontSize: 48)),
+          SizedBox(height: 16),
+          Text(
+            'Inga idéer än.',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black54),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Inga idéer sparade än.',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Spara tankar du kanske vill utforska senare!',
+          SizedBox(height: 8),
+          Text(
+            'Bearbeta tankar från inkorgen för att spara idéer!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.black45),
           ),
