@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ai_kodhjalp/app/shared/navigation/navigation_destinations.dart';
+import 'package:ai_kodhjalp/app/core/responsive/responsive_layout.dart';
+import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class AppShell extends StatelessWidget {
   final Widget child;
@@ -24,9 +27,19 @@ class AppShell extends StatelessWidget {
       (d) => currentPath.startsWith(d.path)
     );
 
+    return iOSAdaptiveWidget(
+      child: ResponsiveLayout(
+        mobile: _buildMobileLayout(context, currentPage, selectedBottomIndex),
+        tablet: _buildTabletLayout(context, currentPage, selectedBottomIndex),
+        desktop: _buildDesktopLayout(context, currentPage, selectedBottomIndex),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(currentPage.label),
+      appBar: iOSAppBar(
+        title: currentPage.label,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -37,51 +50,125 @@ class AppShell extends StatelessWidget {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              child: Text(
-                'Meny',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  fontSize: 24,
-                ),
+      drawer: _buildDrawer(context),
+      body: ResponsivePadding(
+        mobilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: child,
+      ),
+      bottomNavigationBar: _buildBottomNav(context, selectedBottomIndex),
+    );
+  }
+
+  Widget _buildTabletLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
+    return Scaffold(
+      appBar: iOSAppBar(
+        title: currentPage.label,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+            tooltip: 'Logga ut',
+          ),
+        ],
+      ),
+      body: Row(
+        children: [
+          if (MediaQuery.of(context).size.width > 900)
+            NavigationRail(
+              selectedIndex: selectedBottomIndex > -1 ? selectedBottomIndex : 0,
+              onDestinationSelected: (index) {
+                context.go(bottomNavigationDestinations[index].path);
+              },
+              labelType: NavigationRailLabelType.all,
+              destinations: bottomNavigationDestinations.map((d) {
+                return NavigationRailDestination(
+                  icon: Icon(d.icon),
+                  selectedIcon: Icon(d.selectedIcon),
+                  label: Text(d.label),
+                );
+              }).toList(),
+            ),
+          Expanded(
+            child: ResponsivePadding(
+              tabletPadding: const EdgeInsets.all(24),
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
+    return _buildTabletLayout(context, currentPage, selectedBottomIndex);
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    final currentPath = GoRouterState.of(context).matchedLocation;
+    
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Text(
+              'ADHD Stöd',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            ...allNavigationDestinations.map((d) {
-              return ListTile(
-                leading: Icon(currentPath.startsWith(d.path) ? d.selectedIcon : d.icon),
-                title: Text(d.label),
-                selected: currentPath.startsWith(d.path),
-                onTap: () {
-                  context.go(d.path);
-                  Navigator.pop(context); // Close drawer
-                },
-              );
-            }),
-          ],
-        ),
+          ),
+          ...allNavigationDestinations.map((d) {
+            final isSelected = currentPath.startsWith(d.path);
+            return ListTile(
+              leading: Icon(
+                isSelected ? d.selectedIcon : d.icon,
+                color: isSelected ? Theme.of(context).colorScheme.primary : null,
+              ),
+              title: Text(
+                d.label,
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : null,
+                ),
+              ),
+              selected: isSelected,
+              onTap: () {
+                context.go(d.path);
+                Navigator.pop(context); // Close drawer
+              },
+            );
+          }),
+        ],
       ),
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedBottomIndex > -1 ? selectedBottomIndex : 0,
-        onTap: (index) {
-          context.go(bottomNavigationDestinations[index].path);
-        },
-        items: bottomNavigationDestinations.map((d) {
-          return BottomNavigationBarItem(
-            icon: Icon(d.icon),
-            activeIcon: Icon(d.selectedIcon),
-            label: d.label,
-          );
-        }).toList(),
-        type: BottomNavigationBarType.fixed,
-      ),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context, int selectedBottomIndex) {
+    if (!ResponsiveLayout.isMobile(context)) return const SizedBox.shrink();
+    
+    return BottomNavigationBar(
+      currentIndex: selectedBottomIndex > -1 ? selectedBottomIndex : 0,
+      onTap: (index) {
+        context.go(bottomNavigationDestinations[index].path);
+      },
+      items: bottomNavigationDestinations.map((d) {
+        return BottomNavigationBarItem(
+          icon: Icon(d.icon),
+          activeIcon: Icon(d.selectedIcon),
+          label: d.label,
+        );
+      }).toList(),
+      type: BottomNavigationBarType.fixed,
+      selectedFontSize: 12,
+      unselectedFontSize: 10,
     );
   }
 }

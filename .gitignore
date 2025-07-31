@@ -43,3 +43,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+# Ignore large files
+Xcode.app/
+Xcode_16.2.xip
+flutter_macos.tar.xz
+.firebase/

@@ -6,6 +6,7 @@ import 'package:ai_kodhjalp/app/app_shell.dart';
 import 'package:ai_kodhjalp/app/features/auth/login_screen.dart';
 import 'package:ai_kodhjalp/app/features/auth/register_screen.dart';
 import 'package:ai_kodhjalp/app/features/dashboard/dashboard_screen.dart';
+import 'package:ai_kodhjalp/app/features/dashboard/adhd_dashboard.dart';
 import 'package:ai_kodhjalp/app/features/todo/todo_screen.dart';
 import 'package:ai_kodhjalp/app/features/pomodoro/pomodoro_screen.dart';
 import 'package:ai_kodhjalp/app/features/mood_tracker/mood_tracker_screen.dart';
@@ -41,7 +42,7 @@ final router = GoRouter(
       routes: [
         GoRoute(
           path: '/dashboard',
-          builder: (context, state) => const DashboardScreen(),
+          builder: (context, state) => const ADHDDashboard(),
         ),
         GoRoute(
           path: '/todo',
@@ -84,6 +85,10 @@ final router = GoRouter(
         GoRoute(
           path: '/coach',
           builder: (context, state) => const AiCoachScreen(),
+        ),
+        GoRoute(
+          path: '/adhd',
+          builder: (context, state) => const AdhdDashboard(),
         ),
       ],
     ),
