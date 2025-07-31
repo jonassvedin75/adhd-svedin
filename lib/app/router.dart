@@ -88,7 +88,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/adhd',
-          builder: (context, state) => const AdhdDashboard(),
+          builder: (context, state) => const ADHDDashboard(),
         ),
       ],
     ),
