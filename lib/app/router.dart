@@ -28,10 +28,10 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/login',
   refreshListenable: GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges()),
   routes: [
-    // Root route that redirects based on auth state
+    // Root redirect
     GoRoute(
       path: '/',
       redirect: (context, state) {
@@ -130,13 +130,19 @@ final router = GoRouter(
     final loggedIn = FirebaseAuth.instance.currentUser != null;
     final loggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
-    if (!loggedIn) {
-      return loggingIn ? null : '/login';
+    // Debug logging
+    print('🔍 Router redirect: loggedIn=$loggedIn, location=${state.matchedLocation}');
+
+    if (!loggedIn && !loggingIn) {
+      print('➡️ Redirecting to login');
+      return '/login';
     }
-    if (loggingIn) {
-      // After login, always start at inbox
+    
+    if (loggedIn && loggingIn) {
+      print('➡️ User logged in, redirecting to inbox');
       return '/inbox'; 
     }
+    
     return null;
   },
 );
