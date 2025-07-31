@@ -88,6 +88,46 @@ class Task {
       'deferUntil': deferUntil != null ? Timestamp.fromDate(deferUntil!) : null,
     };
   }
+
+  Task copyWith({
+    String? id,
+    String? userId,
+    String? taskName,
+    String? description,
+    String? priority,
+    int? energyLevel,
+    bool? completed,
+    Timestamp? createdAt,
+    DateTime? dueDate,
+    String? dueTime,
+    String? context,
+    String? project,
+    List<String>? tags,
+    int? estimatedMinutes,
+    int? order,
+    bool? isDeferred,
+    DateTime? deferUntil,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      taskName: taskName ?? this.taskName,
+      description: description ?? this.description,
+      priority: priority ?? this.priority,
+      energyLevel: energyLevel ?? this.energyLevel,
+      completed: completed ?? this.completed,
+      createdAt: createdAt ?? this.createdAt,
+      dueDate: dueDate ?? this.dueDate,
+      dueTime: dueTime ?? this.dueTime,
+      context: context ?? this.context,
+      project: project ?? this.project,
+      tags: tags ?? this.tags,
+      estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
+      order: order ?? this.order,
+      isDeferred: isDeferred ?? this.isDeferred,
+      deferUntil: deferUntil ?? this.deferUntil,
+    );
+  }
 }
 
 // --- FÖRBÄTTRAD ADHD-OPTIMERAD TODO-SKÄRM ---
@@ -106,6 +146,11 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
   // Filter och sortering
   String _currentFilter = 'all'; // all, today, high_energy, low_energy
   String _currentContext = 'all'; // all, @hemma, @jobbet, etc.
+  
+  // Filter dialog variables
+  int _energyFilterValue = 5;
+  DateTime? _selectedDate;
+  String? _selectedContextProject;
   
   // Animation controllers
   late AnimationController _filterAnimationController;
@@ -129,6 +174,101 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
   void dispose() {
     _filterAnimationController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          'Uppgifter',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.text,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 1,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_list, color: AppColors.primary),
+            onPressed: _showFilterDialog,
+            tooltip: 'Filtrera uppgifter',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Snabbfilter
+          _buildQuickFilters(),
+          
+          // Huvudlista
+          Expanded(
+            child: StreamBuilder<List<Task>>(
+              stream: _getFilteredTasksStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red.shade300,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Något gick fel',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Försök igen senare',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final tasks = snapshot.data ?? [];
+
+                if (tasks.isEmpty) {
+                  return _buildEmptyState();
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return _buildTaskCard(tasks[index]);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddTaskDialog,
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
   }
 
   // --- STREAM FÖR UPPGIFTER MED FILTER ---
@@ -237,78 +377,6 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
 
   // --- UI-METODER ---
 
-  void _showAddTaskDialog(int currentTaskCount) {
-    final textController = TextEditingController();
-    String selectedPriority = 'B'; // Standardprioritet
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: AppColors.background,
-              title: const Text('Ny uppgift', style: TextStyle(color: AppColors.text)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: textController,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Vad behöver göras?',
-                      labelStyle: TextStyle(color: AppColors.text),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: AppColors.primary),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Prioritet', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.text)),
-                  const SizedBox(height: 8),
-                  SegmentedButton<String>(
-                    style: SegmentedButton.styleFrom(
-                      foregroundColor: AppColors.text,
-                      selectedForegroundColor: Colors.white,
-                      selectedBackgroundColor: AppColors.primary,
-                    ),
-                    segments: const <ButtonSegment<String>>[
-                      ButtonSegment<String>(value: 'A', label: Text('A'), tooltip: 'Högst'),
-                      ButtonSegment<String>(value: 'B', label: Text('B'), tooltip: 'Mellan'),
-                      ButtonSegment<String>(value: 'C', label: Text('C'), tooltip: 'Lågst'),
-                    ],
-                    selected: <String>{selectedPriority},
-                    onSelectionChanged: (Set<String> newSelection) {
-                      setDialogState(() {
-                        selectedPriority = newSelection.first;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Avbryt', style: TextStyle(color: AppColors.primary)),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                  child: const Text('Lägg till'),
-                  onPressed: () {
-                    if (textController.text.isNotEmpty) {
-                      _addTask(textController.text, selectedPriority, currentTaskCount);
-                      Navigator.of(context).pop();
-                    }
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
   // --- UI KOMPONENTER ---
   
   Widget _buildQuickFilters() {
@@ -343,7 +411,7 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
           _currentFilter = filter;
         });
       },
-      selectedColor: AppColors.primary.withOpacity(0.2),
+      selectedColor: AppColors.primary.withValues(alpha: 0.2),
       checkmarkColor: AppColors.primary,
       backgroundColor: Colors.white,
       side: BorderSide(
@@ -392,7 +460,7 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: _getPriorityColor(task.priority).withOpacity(0.3),
+            color: _getPriorityColor(task.priority).withValues(alpha: 0.3),
             width: 2,
           ),
         ),
@@ -439,7 +507,7 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _getPriorityColor(task.priority).withOpacity(0.2),
+                        color: _getPriorityColor(task.priority).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -554,15 +622,15 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,
         style: TextStyle(
           fontSize: 11,
-          color: color.shade700,
+          color: color,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -674,9 +742,8 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
                 return Theme(
                   data: ThemeData.light().copyWith(
                     primaryColor: AppColors.primary,
-                    accentColor: AppColors.primary,
                     colorScheme: ColorScheme.light(primary: AppColors.primary),
-                    buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                    buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
                   ),
                   child: child!,
                 );
@@ -821,177 +888,6 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
 
   // --- UI-METODER FÖR DETALJERAD VISNING AV UPPGIFTER ---
   
-  void _showTaskDetails(Task task) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Stäng-knapp
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: AppColors.text),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                
-                // Uppgiftstitel
-                Text(
-                  task.taskName,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.text,
-                  ),
-                ),
-                
-                const SizedBox(height: 12),
-                
-                // Beskrivning
-                if (task.description.isNotEmpty) ...[
-                  Text(
-                    task.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                
-                // Detaljerad metadata-rad
-                Row(
-                  children: [
-                    // Energinivå
-                    Row(
-                      children: [
-                        Icon(
-                          _getEnergyIcon(task.energyLevel),
-                          size: 18,
-                          color: _getEnergyColor(task.energyLevel),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${task.energyLevel}/10',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.text,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(width: 16),
-                    
-                    // Tidsuppskattning
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.schedule,
-                          size: 18,
-                          color: Colors.grey.shade500,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${task.estimatedMinutes} min',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.text,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(width: 16),
-                    
-                    // Datum
-                    if (task.dueDate != null) ...[
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.event,
-                            size: 18,
-                            color: _isOverdue(task.dueDate!) ? Colors.red : Colors.grey.shade500,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatDate(task.dueDate!),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: _isOverdue(task.dueDate!) ? Colors.red : AppColors.text,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Kontext och projekt taggar
-                if (task.context.isNotEmpty || task.project.isNotEmpty) ...[
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      if (task.context.isNotEmpty)
-                        _buildTag(task.context, Colors.blue),
-                      if (task.project.isNotEmpty)
-                        _buildTag(task.project, Colors.green),
-                      ...task.tags.map((tag) => _buildTag('#$tag', Colors.purple)),
-                    ],
-                  ),
-                ],
-                
-                const SizedBox(height: 24),
-                
-                // Knapp för att redigera uppgift
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: const Text(
-                      'Redigera uppgift',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _showEditTaskDialog(task);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _showEditTaskDialog(Task task) {
     final textController = TextEditingController(text: task.taskName);
     final descriptionController = TextEditingController(text: task.description);
@@ -1140,77 +1036,7 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showFilterDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Filtrera uppgifter'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text('Alla uppgifter'),
-              leading: Radio<String>(
-                value: 'all',
-                groupValue: _currentFilter,
-                onChanged: (value) {
-                  setState(() {
-                    _currentFilter = value!;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            ListTile(
-              title: const Text('Dagens uppgifter'),
-              leading: Radio<String>(
-                value: 'today',
-                groupValue: _currentFilter,
-                onChanged: (value) {
-                  setState(() {
-                    _currentFilter = value!;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            ListTile(
-              title: const Text('Hög energi (7-10)'),
-              leading: Radio<String>(
-                value: 'high_energy',
-                groupValue: _currentFilter,
-                onChanged: (value) {
-                  setState(() {
-                    _currentFilter = value!;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            ListTile(
-              title: const Text('Låg energi (1-4)'),
-              leading: Radio<String>(
-                value: 'low_energy',
-                groupValue: _currentFilter,
-                onChanged: (value) {
-                  setState(() {
-                    _currentFilter = value!;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Stäng'),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
 
 // --- DIALOG FÖR ATT LÄGGA TILL NY UPPGIFT ---

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 // --- FÄRGER OCH TEMA ---
@@ -19,11 +20,11 @@ class AppColors {
 
 // Appens övergripande tema - Mobile-First Design
 final appTheme = ThemeData(
-  scaffoldBackgroundColor: Platform.isIOS ? AppColors.iOSBackground : AppColors.background,
+  scaffoldBackgroundColor: (!kIsWeb && Platform.isIOS) ? AppColors.iOSBackground : AppColors.background,
   primaryColor: AppColors.primary,
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.primary,
-    surface: Platform.isIOS ? AppColors.iOSBackground : AppColors.background,
+    surface: (!kIsWeb && Platform.isIOS) ? AppColors.iOSBackground : AppColors.background,
   ),
   textTheme: const TextTheme(
     bodyLarge: TextStyle(color: AppColors.text, fontSize: 16),
@@ -32,7 +33,7 @@ final appTheme = ThemeData(
     titleMedium: TextStyle(color: AppColors.text, fontWeight: FontWeight.w600, fontSize: 18),
   ),
   appBarTheme: AppBarTheme(
-    backgroundColor: Platform.isIOS ? AppColors.iOSSecondaryBackground : AppColors.background,
+    backgroundColor: (!kIsWeb && Platform.isIOS) ? AppColors.iOSSecondaryBackground : AppColors.background,
     elevation: 0,
     scrolledUnderElevation: 0,
     iconTheme: const IconThemeData(color: AppColors.text),
@@ -41,7 +42,7 @@ final appTheme = ThemeData(
       fontSize: 18,
       fontWeight: FontWeight.w600,
     ),
-    systemOverlayStyle: Platform.isIOS 
+    systemOverlayStyle: (!kIsWeb && Platform.isIOS) 
       ? SystemUiOverlayStyle.dark
       : SystemUiOverlayStyle.dark,
   ),

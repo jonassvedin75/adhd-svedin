@@ -41,24 +41,6 @@ const List<AppNavigationDestination> allNavigationDestinations = [
     icon: Icons.task_outlined,
     selectedIcon: Icons.task,
   ),
-  AppNavigationDestination(
-    path: '/projects',
-    label: 'Projekt',
-    icon: Icons.folder_outlined,
-    selectedIcon: Icons.folder,
-  ),
-  AppNavigationDestination(
-    path: '/someday',
-    label: 'Idéer & Framtid',
-    icon: Icons.lightbulb_outline,
-    selectedIcon: Icons.lightbulb,
-  ),
-  AppNavigationDestination(
-    path: '/reference',
-    label: 'Referens',
-    icon: Icons.bookmark_outline,
-    selectedIcon: Icons.bookmark,
-  ),
    AppNavigationDestination(
     path: '/planning',
     label: 'Planering',

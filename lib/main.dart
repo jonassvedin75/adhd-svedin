@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:ai_kodhjalp/firebase_options.dart';
 import 'package:ai_kodhjalp/app/core/config/production_config.dart';
 import 'package:ai_kodhjalp/app/core/ios/ios_security.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 
 void main() async {
@@ -13,8 +15,8 @@ void main() async {
   // Konfigurera app för produktion
   ProductionConfig.configure();
   
-  // Konfigurera iOS-specifik säkerhet
-  if (Platform.isIOS) {
+  // Konfigurera iOS-specifik säkerhet (endast på iOS)
+  if (!kIsWeb && Platform.isIOS) {
     iOSSecurityConfig.configure();
   }
   
@@ -29,5 +31,9 @@ void main() async {
     // Fortsätt ändå - appen kan fungera offline
   }
   
-  runApp(const AdhdSupportApp());
+  runApp(
+    const ProviderScope(
+      child: AdhdSupportApp(),
+    ),
+  );
 }

@@ -16,6 +16,11 @@ import 'package:ai_kodhjalp/app/features/behavior_chain/behavior_chain_screen.da
 import 'package:ai_kodhjalp/app/features/planning/planning_screen.dart';
 import 'package:ai_kodhjalp/app/features/problem_solving/problem_solving_screen.dart';
 import 'package:ai_kodhjalp/app/features/worry_tool/worry_tool_screen.dart';
+import 'package:ai_kodhjalp/app/features/inbox/inbox_view.dart';
+import 'package:ai_kodhjalp/app/features/tasks/tasks_view.dart';
+import 'package:ai_kodhjalp/app/features/projects/projects_view.dart';
+import 'package:ai_kodhjalp/app/features/someday/someday_view.dart';
+import 'package:ai_kodhjalp/app/features/reference/reference_view.dart';
 
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -47,6 +52,26 @@ final router = GoRouter(
         GoRoute(
           path: '/todo',
           builder: (context, state) => const TodoScreen(),
+        ),
+        GoRoute(
+          path: '/inbox',
+          builder: (context, state) => const InboxView(),
+        ),
+        GoRoute(
+          path: '/tasks',
+          builder: (context, state) => const TasksView(),
+        ),
+        GoRoute(
+          path: '/projects',
+          builder: (context, state) => const ProjectsView(),
+        ),
+        GoRoute(
+          path: '/someday',
+          builder: (context, state) => const SomedayView(),
+        ),
+        GoRoute(
+          path: '/reference',
+          builder: (context, state) => const ReferenceView(),
         ),
          GoRoute(
           path: '/planning',
@@ -101,8 +126,8 @@ final router = GoRouter(
       return loggingIn ? null : '/login';
     }
     if (loggingIn) {
-      // After login, always start at the first item in the bottom nav, which is To-Do
-      return '/todo'; 
+      // After login, always start at inbox
+      return '/inbox'; 
     }
     return null;
   },
