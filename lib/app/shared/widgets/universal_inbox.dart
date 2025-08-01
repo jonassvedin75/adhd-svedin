@@ -33,11 +33,11 @@ class _UniversalInboxState extends State<UniversalInbox>
   
   // Quick capture tags for GTD-style processing
   final List<Map<String, dynamic>> _quickTags = [
-    {'id': 'task', 'label': 'Uppgift', 'icon': Icons.task_alt, 'color': Colors.blue},
-    {'id': 'idea', 'label': 'Idé', 'icon': Icons.lightbulb, 'color': Colors.amber},
-    {'id': 'note', 'label': 'Anteckning', 'icon': Icons.note, 'color': Colors.green},
-    {'id': 'reminder', 'label': 'Påminnelse', 'icon': Icons.alarm, 'color': Colors.orange},
-    {'id': 'question', 'label': 'Fråga', 'icon': Icons.help, 'color': Colors.purple},
+    {'id': 'task', 'label': 'Uppgift', 'icon': Icons.task_alt, 'color': const Color(0xFF3B82F6)},
+    {'id': 'idea', 'label': 'Idé', 'icon': Icons.lightbulb, 'color': const Color(0xFFFBBF24)},
+    {'id': 'note', 'label': 'Anteckning', 'icon': Icons.note, 'color': const Color(0xFF22C55E)},
+    {'id': 'reminder', 'label': 'Påminnelse', 'icon': Icons.alarm, 'color': const Color(0xFFF97316)},
+    {'id': 'question', 'label': 'Fråga', 'icon': Icons.help, 'color': const Color(0xFFEF4444)},
   ];
 
   @override
@@ -103,14 +103,18 @@ class _UniversalInboxState extends State<UniversalInbox>
           SnackBar(
             content: Row(
               children: [
-                Icon(_getTagIcon(_selectedTag), size: 16),
+                const Icon(Icons.check_circle_outline, size: 16, color: Colors.white),
                 const SizedBox(width: 8),
-                const Text('Sparat i inkorgen'),
+                Text('${_getTagLabel(_selectedTag)} sparad! 🎉'),
               ],
             ),
-            duration: const Duration(seconds: 1),
+            duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFF22C55E), // AppColors.success
             margin: const EdgeInsets.only(bottom: 100),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -126,10 +130,17 @@ class _UniversalInboxState extends State<UniversalInbox>
     )['icon'];
   }
 
+  String _getTagLabel(String tag) {
+    return _quickTags.firstWhere(
+      (t) => t['id'] == tag,
+      orElse: () => {'label': 'Anteckning'},
+    )['label'];
+  }
+
   Color _getTagColor(String tag) {
     return _quickTags.firstWhere(
       (t) => t['id'] == tag,
-      orElse: () => {'color': Colors.blue},
+      orElse: () => {'color': const Color(0xFF3B82F6)},
     )['color'];
   }
 
@@ -184,7 +195,7 @@ class _UniversalInboxState extends State<UniversalInbox>
                     controller: _textController,
                     focusNode: _focusNode,
                     decoration: InputDecoration(
-                      hintText: 'Vad kommer du ihåg?',
+                      hintText: 'Fånga en tanke...',
                       hintStyle: TextStyle(
                         color: Colors.grey[500],
                         fontSize: 16,
@@ -246,7 +257,8 @@ class _UniversalInboxState extends State<UniversalInbox>
                         ),
                         const SizedBox(height: 12),
                         Wrap(
-                          spacing: 8,
+                          spacing: 12,
+                          runSpacing: 8,
                           children: _quickTags.map((tag) {
                             final isSelected = tag['id'] == _selectedTag;
                             return FilterChip(
@@ -284,8 +296,8 @@ class _UniversalInboxState extends State<UniversalInbox>
                               backgroundColor: Colors.grey[100],
                               checkmarkColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                                horizontal: 12,
+                                vertical: 8,
                               ),
                             );
                           }).toList(),

@@ -45,15 +45,6 @@ final router = GoRouter(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
     ),
-    GoRoute(
-      path: '/kaos',
-      pageBuilder: (context, state) => CustomTransitionPage<void>(
-        key: state.pageKey,
-        child: const KaosView(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
-    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
@@ -61,10 +52,22 @@ final router = GoRouter(
       },
       routes: [
         GoRoute(
+          path: '/kaos',
+          pageBuilder: (context, state) => CustomTransitionPage<void>(
+            key: state.pageKey,
+            child: const KaosView(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        ),
+        GoRoute(
             path: '/dashboard',
             builder: (context, state) => const ADHDDashboard()),
         GoRoute(
-            path: '/todo', builder: (context, state) => const TodoScreen()),
+            path: '/todo', builder: (context, state) => const TodoScreen()        ),
+        GoRoute(
+            path: '/dashboard',
+            builder: (context, state) => const ADHDDashboard()),
         GoRoute(
             path: '/inbox', builder: (context, state) => const InboxView()),
         GoRoute(
@@ -98,9 +101,6 @@ final router = GoRouter(
         GoRoute(
             path: '/coach',
             builder: (context, state) => const AiCoachScreen()),
-        GoRoute(
-            path: '/adhd',
-            builder: (context, state) => const ADHDDashboard()),
       ],
     ),
   ],
@@ -114,7 +114,7 @@ final router = GoRouter(
     }
 
     if (loggedIn && loggingIn) {
-      return '/inbox';
+      return '/dashboard';
     }
 
     return null;

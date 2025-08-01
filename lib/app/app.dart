@@ -28,10 +28,9 @@ class App extends StatelessWidget {
           return MaterialApp.router(
             title: 'ADHD Coach',
             debugShowCheckedModeBanner: false,
-            // --- Applying the new unified themes ---
+            // --- Applying the unified light theme ---
             theme: AppThemes.lightTheme,
-            darkTheme: AppThemes.darkTheme,
-            themeMode: themeProvider.themeMode,
+            themeMode: ThemeMode.light,
             routerConfig: router,
           );
         },

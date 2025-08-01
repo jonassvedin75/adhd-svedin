@@ -18,7 +18,7 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
-  int _currentEnergyLevel = 5;
+  int _currentEnergyLevel = 8;
   String _currentMood = 'neutral';
   bool _isTimerExpanded = false;
 
@@ -130,7 +130,7 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
             ),
             IconButton(
               onPressed: () => context.go('/settings'),
-              icon: const Icon(Icons.settings_outlined),
+              icon: Icon(Icons.settings_outlined, color: AppColors.bordersAndIcons),
               iconSize: 28,
             ),
           ],
@@ -212,7 +212,10 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
               title: Text('Fokustimer', style: Theme.of(context).textTheme.titleLarge),
               subtitle: const Text('Använd för fokuserade arbetspass'),
               trailing: IconButton(
-                icon: Icon(_isTimerExpanded ? Icons.expand_less : Icons.expand_more),
+                icon: Icon(
+                  _isTimerExpanded ? Icons.expand_less : Icons.expand_more,
+                  color: AppColors.bordersAndIcons,
+                ),
                 onPressed: () => setState(() => _isTimerExpanded = !_isTimerExpanded),
               ),
             ),
@@ -252,8 +255,8 @@ class _ADHDDashboardState extends State<ADHDDashboard> {
 
   Color _getEnergyColor(int level) {
     if (level >= 8) return AppColors.success;
-    if (level >= 6) return Colors.orange;
-    if (level >= 4) return Colors.yellow;
+    if (level >= 6) return AppColors.warning;
+    if (level >= 4) return AppColors.focusPause;
     return AppColors.danger;
   }
 

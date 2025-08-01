@@ -5,7 +5,6 @@ class WorryToolScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hantera Oro')),
       body: const Center(
         child: Text('Worry Tool Screen - Placeholder'),
       ),

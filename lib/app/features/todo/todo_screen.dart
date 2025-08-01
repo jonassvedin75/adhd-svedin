@@ -106,16 +106,6 @@ class _TodoScreenState extends State<TodoScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Uppgifter'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {}, // TODO: Implement filter dialog
-            tooltip: 'Filtrera uppgifter',
-          ),
-        ],
-      ),
       body: Column(
         children: [
           _buildQuickFilters(),

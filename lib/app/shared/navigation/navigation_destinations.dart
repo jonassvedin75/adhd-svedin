@@ -24,12 +24,6 @@ const List<AppNavigationDestination> allNavigationDestinations = [
     selectedIcon: Icons.dashboard,
   ),
   AppNavigationDestination(
-    path: '/todo',
-    label: 'To-Do',
-    icon: Icons.check_box_outline_blank,
-    selectedIcon: Icons.check_box,
-  ),
-  AppNavigationDestination(
     path: '/inbox',
     label: 'Inkorg',
     icon: Icons.inbox_outlined,
@@ -48,16 +42,10 @@ const List<AppNavigationDestination> allNavigationDestinations = [
     selectedIcon: Icons.folder,
   ),
   AppNavigationDestination(
-    path: '/someday',
+    path: '/ideas',
     label: 'Idéer & Framtid',
     icon: Icons.lightbulb_outline,
     selectedIcon: Icons.lightbulb,
-  ),
-  AppNavigationDestination(
-    path: '/reference',
-    label: 'Referens',
-    icon: Icons.bookmark_outline,
-    selectedIcon: Icons.bookmark,
   ),
    AppNavigationDestination(
     path: '/planning',
@@ -96,6 +84,12 @@ const List<AppNavigationDestination> allNavigationDestinations = [
     selectedIcon: Icons.lightbulb,
   ),
   AppNavigationDestination(
+    path: '/worry',
+    label: 'Hantera Oro',
+    icon: Icons.psychology_outlined,
+    selectedIcon: Icons.psychology,
+  ),
+  AppNavigationDestination(
     path: '/rewards',
     label: 'Belöning',
     icon: Icons.star_outline,
@@ -111,8 +105,8 @@ const List<AppNavigationDestination> allNavigationDestinations = [
 
 // The FOUR specific destinations for the Bottom Navigation Bar
 final List<AppNavigationDestination> bottomNavigationDestinations = [
-  allNavigationDestinations[2], // Inbox
-  allNavigationDestinations[7], // Planering 
-  allNavigationDestinations[8], // Timer
-  allNavigationDestinations[9], // Kaos
+  allNavigationDestinations[0], // Dashboard
+  allNavigationDestinations[2], // Uppgifter 
+  allNavigationDestinations[6], // Timer (Pomodoro)
+  allNavigationDestinations[5], // Planering
 ];

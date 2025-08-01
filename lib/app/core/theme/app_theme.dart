@@ -46,8 +46,6 @@ class AppThemes {
         onSecondary: Colors.white,
         error: AppColors.danger,
         onError: Colors.white,
-        background: AppColors.lightBackground,
-        onBackground: AppColors.darkText,
         surface: AppColors.cardSurface,
         onSurface: AppColors.darkText,
       ),
@@ -73,7 +71,7 @@ class AppThemes {
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: AppColors.bordersAndIcons.withOpacity(0.5)),
+          side: BorderSide(color: AppColors.bordersAndIcons.withValues(alpha: 0.5)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -85,50 +83,7 @@ class AppThemes {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        labelStyle: TextStyle(color: AppColors.darkText.withOpacity(0.7)),
-      ),
-    );
-  }
-
-  static ThemeData get darkTheme {
-     // Based on the guide: use darkText as background, lightBackground as text
-    return lightTheme.copyWith(
-      scaffoldBackgroundColor: AppColors.darkText,
-      colorScheme: const ColorScheme(
-        brightness: Brightness.dark,
-        primary: AppColors.primary,
-        onPrimary: Colors.white,
-        secondary: AppColors.success,
-        onSecondary: Colors.white,
-        error: AppColors.danger,
-        onError: Colors.white,
-        background: AppColors.darkText,
-        onBackground: AppColors.lightBackground,
-        surface: const Color(0xFF2d3748),
-        onSurface: AppColors.lightBackground,
-      ),
-       textTheme: _baseTextTheme.apply(
-         bodyColor: AppColors.lightBackground,
-         displayColor: AppColors.lightBackground,
-       ),
-      cardTheme: CardThemeData(
-        color: const Color(0xFF2d3748),
-        elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.bordersAndIcons),
-        ),
-      ),
-       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.bordersAndIcons),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-        labelStyle: TextStyle(color: AppColors.lightBackground.withOpacity(0.7)),
+        labelStyle: TextStyle(color: AppColors.darkText.withValues(alpha: 0.7)),
       ),
     );
   }

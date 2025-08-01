@@ -17,17 +17,11 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  bool _isExtended = false;
-
   void _onItemTapped(BuildContext context, int index) {
     if (index >= 0 && index < bottomNavigationDestinations.length) {
-      context.go(bottomNavigationDestinations[index].path);
-    }
-  }
-  
-    void _onRailItemTapped(BuildContext context, int index) {
-    if (index >= 0 && index < allNavigationDestinations.length) {
-      context.go(allNavigationDestinations[index].path);
+      final destination = bottomNavigationDestinations[index];
+      print('🔥 Navigation Debug: Index $index -> Path: ${destination.path} (${destination.label})');
+      context.go(destination.path);
     }
   }
 
@@ -44,21 +38,27 @@ class _AppShellState extends State<AppShell> {
       (d) => currentPath.startsWith(d.path),
     );
 
-    final selectedRailIndex = allNavigationDestinations.indexWhere(
-      (d) => currentPath.startsWith(d.path),
-    );
-
     return IosAdaptiveWidget(
       child: ResponsiveLayout(
         mobile: _buildMobileLayout(context, currentPage, selectedBottomIndex),
-        tablet: _buildDesktopLayout(context, currentPage, selectedRailIndex), 
-        desktop: _buildDesktopLayout(context, currentPage, selectedRailIndex),
+        tablet: _buildMobileLayout(context, currentPage, selectedBottomIndex), 
+        desktop: _buildMobileLayout(context, currentPage, selectedBottomIndex),
       ),
     );
   }
 
   Widget _buildMobileLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(currentPage.label),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+      ),
+      drawer: _buildDrawer(context),
       body: widget.child,
       bottomNavigationBar: _buildCustomBottomNav(context, selectedBottomIndex),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -66,38 +66,78 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildDesktopLayout(BuildContext context, AppNavigationDestination currentPage, int selectedRailIndex) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentPage.label),
-        leading: IconButton(
-          icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
-          onPressed: () {
-            setState(() {
-              _isExtended = !_isExtended;
-            });
-          },
-        ),
-      ),
-      body: Row(
+  Widget _buildDrawer(BuildContext context) {
+    final currentPath = GoRouterState.of(context).matchedLocation;
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    return Drawer(
+      child: Column(
         children: [
-          NavigationRail(
-            selectedIndex: selectedRailIndex,
-            onDestinationSelected: (index) => _onRailItemTapped(context, index),
-            labelType: NavigationRailLabelType.none,
-            extended: _isExtended,
-            destinations: allNavigationDestinations.map((d) {
-              return NavigationRailDestination(
-                icon: Icon(d.icon),
-                selectedIcon: Icon(d.selectedIcon),
-                label: Text(d.label),
-              );
-            }).toList(),
+          // Drawer Header
+          UserAccountsDrawerHeader(
+            accountName: Text(currentUser?.displayName ?? 'Användare'),
+            accountEmail: Text(currentUser?.email ?? ''),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: AppColors.primary,
+              child: Text(
+                (currentUser?.displayName?.substring(0, 1) ?? 'U').toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+            ),
           ),
-          const VerticalDivider(thickness: 1, width: 1),
+          
+          // Navigation Items
           Expanded(
-            child: widget.child,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: allNavigationDestinations.map((destination) {
+                final isSelected = currentPath.startsWith(destination.path);
+                return ListTile(
+                  leading: Icon(
+                    isSelected ? destination.selectedIcon : destination.icon,
+                    color: isSelected ? AppColors.primary : null,
+                  ),
+                  title: Text(
+                    destination.label,
+                    style: TextStyle(
+                      color: isSelected ? AppColors.primary : null,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  selected: isSelected,
+                  onTap: () {
+                    Navigator.of(context).pop(); // Close drawer
+                    context.go(destination.path);
+                  },
+                );
+              }).toList(),
+            ),
           ),
+          
+          // Logout option
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text(
+              'Logga ut',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () async {
+              Navigator.of(context).pop(); // Close drawer
+              await FirebaseAuth.instance.signOut();
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -120,11 +160,11 @@ class _AppShellState extends State<AppShell> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _buildNavItem(context, icon: FontAwesomeIcons.inbox, label: 'Inkorg', index: 0, selectedIndex: selectedIndex),
+          _buildNavItem(context, icon: FontAwesomeIcons.house, label: 'Dashboard', index: 0, selectedIndex: selectedIndex),
           _buildNavItem(context, icon: FontAwesomeIcons.listCheck, label: 'Uppgifter', index: 1, selectedIndex: selectedIndex),
           const SizedBox(width: 48), // Spacer for the Kaos button
-          _buildNavItem(context, icon: FontAwesomeIcons.lightbulb, label: 'Idéer', index: 2, selectedIndex: selectedIndex),
-          _buildNavItem(context, icon: FontAwesomeIcons.layerGroup, label: 'Projekt', index: 3, selectedIndex: selectedIndex),
+          _buildNavItem(context, icon: FontAwesomeIcons.clock, label: 'Timer', index: 2, selectedIndex: selectedIndex),
+          _buildNavItem(context, icon: FontAwesomeIcons.calendar, label: 'Planering', index: 3, selectedIndex: selectedIndex),
         ],
       ),
     );
@@ -132,10 +172,33 @@ class _AppShellState extends State<AppShell> {
 
   Widget _buildNavItem(BuildContext context, {required IconData icon, required String label, required int index, required int selectedIndex}) {
     final isSelected = selectedIndex == index;
-    return IconButton(
-      icon: FaIcon(icon, color: isSelected ? AppColors.primary : AppColors.bordersAndIcons),
-      onPressed: () => _onItemTapped(context, index),
-      tooltip: label,
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onItemTapped(context, index),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FaIcon(
+                icon, 
+                color: isSelected ? AppColors.primary : AppColors.bordersAndIcons,
+                size: 20,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isSelected ? AppColors.primary : AppColors.bordersAndIcons,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
