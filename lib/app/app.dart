@@ -16,8 +16,8 @@ class ThemeProvider with ChangeNotifier {
 }
 
 // --- Main App Widget ---
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class App extends StatelessWidget {
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {

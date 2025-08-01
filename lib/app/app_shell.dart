@@ -7,14 +7,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:ai_kodhjalp/app/core/theme/app_theme.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   final Widget child;
 
   const AppShell({super.key, required this.child});
 
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  bool _isExtended = false;
+
   void _onItemTapped(BuildContext context, int index) {
     if (index >= 0 && index < bottomNavigationDestinations.length) {
       context.go(bottomNavigationDestinations[index].path);
+    }
+  }
+  
+    void _onRailItemTapped(BuildContext context, int index) {
+    if (index >= 0 && index < allNavigationDestinations.length) {
+      context.go(allNavigationDestinations[index].path);
     }
   }
 
@@ -24,35 +37,72 @@ class AppShell extends StatelessWidget {
 
     final currentPage = allNavigationDestinations.firstWhere(
       (d) => currentPath.startsWith(d.path),
-      orElse: () => const AppNavigationDestination(path: '/', label: 'Hem', icon: Icons.home, selectedIcon: Icons.home),
+      orElse: () => allNavigationDestinations.first,
     );
 
     final selectedBottomIndex = bottomNavigationDestinations.indexWhere(
-      (d) => currentPath.startsWith(d.path)
+      (d) => currentPath.startsWith(d.path),
+    );
+
+    final selectedRailIndex = allNavigationDestinations.indexWhere(
+      (d) => currentPath.startsWith(d.path),
     );
 
     return IosAdaptiveWidget(
       child: ResponsiveLayout(
         mobile: _buildMobileLayout(context, currentPage, selectedBottomIndex),
-        tablet: _buildTabletLayout(context, currentPage, selectedBottomIndex),
-        desktop: _buildDesktopLayout(context, currentPage, selectedBottomIndex),
+        tablet: _buildDesktopLayout(context, currentPage, selectedRailIndex), 
+        desktop: _buildDesktopLayout(context, currentPage, selectedRailIndex),
       ),
     );
   }
 
   Widget _buildMobileLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
     return Scaffold(
-      // The AppBar is now defined in each view for more control
-      // appBar: IosAppBar(
-      //   title: currentPage.label,
-      // ),
-      body: child,
+      body: widget.child,
       bottomNavigationBar: _buildCustomBottomNav(context, selectedBottomIndex),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _buildKaosButton(context),
     );
   }
-  
+
+  Widget _buildDesktopLayout(BuildContext context, AppNavigationDestination currentPage, int selectedRailIndex) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(currentPage.label),
+        leading: IconButton(
+          icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
+          onPressed: () {
+            setState(() {
+              _isExtended = !_isExtended;
+            });
+          },
+        ),
+      ),
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: selectedRailIndex,
+            onDestinationSelected: (index) => _onRailItemTapped(context, index),
+            labelType: NavigationRailLabelType.none,
+            extended: _isExtended,
+            destinations: allNavigationDestinations.map((d) {
+              return NavigationRailDestination(
+                icon: Icon(d.icon),
+                selectedIcon: Icon(d.selectedIcon),
+                label: Text(d.label),
+              );
+            }).toList(),
+          ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: widget.child,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildKaosButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () => context.go('/kaos'),
@@ -87,13 +137,5 @@ class AppShell extends StatelessWidget {
       onPressed: () => _onItemTapped(context, index),
       tooltip: label,
     );
-  }
-
-  Widget _buildTabletLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
-    return _buildMobileLayout(context, currentPage, selectedBottomIndex);
-  }
-
-  Widget _buildDesktopLayout(BuildContext context, AppNavigationDestination currentPage, int selectedBottomIndex) {
-    return _buildMobileLayout(context, currentPage, selectedBottomIndex);
   }
 }
