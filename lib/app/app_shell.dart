@@ -78,18 +78,18 @@ class _AppShellState extends State<AppShell> {
             accountName: Text(currentUser?.displayName ?? 'Användare'),
             accountEmail: Text(currentUser?.email ?? ''),
             currentAccountPicture: CircleAvatar(
-              backgroundColor: AppColors.primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               child: Text(
                 (currentUser?.displayName?.substring(0, 1) ?? 'U').toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           
@@ -102,12 +102,12 @@ class _AppShellState extends State<AppShell> {
                 return ListTile(
                   leading: Icon(
                     isSelected ? destination.selectedIcon : destination.icon,
-                    color: isSelected ? AppColors.primary : null,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : null,
                   ),
                   title: Text(
                     destination.label,
                     style: TextStyle(
-                      color: isSelected ? AppColors.primary : null,
+                      color: isSelected ? Theme.of(context).colorScheme.primary : null,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -124,10 +124,10 @@ class _AppShellState extends State<AppShell> {
           // Logout option
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text(
+            leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+            title: Text(
               'Logga ut',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             onTap: () async {
               Navigator.of(context).pop(); // Close drawer
@@ -146,7 +146,7 @@ class _AppShellState extends State<AppShell> {
   Widget _buildKaosButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () => context.go('/kaos'),
-      backgroundColor: AppColors.warning,
+      backgroundColor: AppColors.kaosBackground,
       elevation: 4.0,
       child: const FaIcon(FontAwesomeIcons.fireExtinguisher, size: 26, color: Colors.white),
       tooltip: 'Kaos',
@@ -176,21 +176,21 @@ class _AppShellState extends State<AppShell> {
       child: InkWell(
         onTap: () => _onItemTapped(context, index),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 6.0), // Minska från 8.0 till 6.0
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               FaIcon(
                 icon, 
-                color: isSelected ? AppColors.primary : AppColors.bordersAndIcons,
+                color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2), // Minska från 4 till 2
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
-                  color: isSelected ? AppColors.primary : AppColors.bordersAndIcons,
+                  fontSize: 10, // Minska från 11 till 10
+                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
                 textAlign: TextAlign.center,

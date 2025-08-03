@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:ai_kodhjalp/app/app_shell.dart';
 import 'package:ai_kodhjalp/app/features/auth/login_screen.dart';
 import 'package:ai_kodhjalp/app/features/auth/register_screen.dart';
-import 'package:ai_kodhjalp/app/features/dashboard/dashboard_screen.dart';
 import 'package:ai_kodhjalp/app/features/dashboard/adhd_dashboard.dart';
 import 'package:ai_kodhjalp/app/features/todo/todo_screen.dart';
 import 'package:ai_kodhjalp/app/features/pomodoro/pomodoro_screen.dart';
@@ -60,11 +59,6 @@ final router = GoRouter(
                 FadeTransition(opacity: animation, child: child),
           ),
         ),
-        GoRoute(
-            path: '/dashboard',
-            builder: (context, state) => const ADHDDashboard()),
-        GoRoute(
-            path: '/todo', builder: (context, state) => const TodoScreen()        ),
         GoRoute(
             path: '/dashboard',
             builder: (context, state) => const ADHDDashboard()),

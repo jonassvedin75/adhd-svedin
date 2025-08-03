@@ -217,7 +217,7 @@ class _VisualTimerState extends State<VisualTimer>
     final progress = _remainingTime.inSeconds / _totalDuration.inSeconds;
     
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16), // Minska från 24 till 16
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -233,7 +233,9 @@ class _VisualTimerState extends State<VisualTimer>
             ),
             const SizedBox(height: 16),
             Wrap(
-              spacing: 12,
+              spacing: 8,
+              runSpacing: 8, // Lägg till runSpacing för bättre radavstånd
+              alignment: WrapAlignment.center, // Centrera knapparna
               children: [5, 10, 15, 25, 30, 45].map((minutes) {
                 final isSelected = _totalDuration.inMinutes == minutes;
                 return FilterChip(
@@ -246,10 +248,11 @@ class _VisualTimerState extends State<VisualTimer>
                     color: isSelected ? _primaryColor : Colors.grey[600],
                     fontWeight: FontWeight.w500,
                   ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Lägg till padding
                 );
               }).toList(),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24), // Minska från 32 till 24
           ],
           
           // Main timer circle
@@ -259,14 +262,14 @@ class _VisualTimerState extends State<VisualTimer>
               return Transform.scale(
                 scale: _isRunning ? _pulseAnimation.value : 1.0,
                 child: Container(
-                  width: 280,
-                  height: 280,
+                  width: 200, // Minska från 280 till 200
+                  height: 200, // Minska från 280 till 200
                   child: CustomPaint(
                     painter: TimerCirclePainter(
                       progress: progress,
                       primaryColor: _primaryColor,
                       backgroundColor: _backgroundColor,
-                      strokeWidth: 8,
+                      strokeWidth: 6, // Minska från 8 till 6
                     ),
                     child: Center(
                       child: Column(
@@ -275,7 +278,7 @@ class _VisualTimerState extends State<VisualTimer>
                           Text(
                             _formatTime(_remainingTime),
                             style: TextStyle(
-                              fontSize: 48,
+                              fontSize: 36, // Minska från 48 till 36
                               fontWeight: FontWeight.w300,
                               color: _primaryColor,
                               fontFeatures: const [
@@ -303,7 +306,7 @@ class _VisualTimerState extends State<VisualTimer>
             },
           ),
           
-          const SizedBox(height: 40),
+          const SizedBox(height: 24), // Minska från 40 till 24
           
           // Control buttons
           Row(
@@ -316,11 +319,11 @@ class _VisualTimerState extends State<VisualTimer>
                   child: IconButton(
                     onPressed: _resetTimer,
                     icon: const Icon(Icons.refresh),
-                    iconSize: 32,
+                    iconSize: 24, // Minska från 32 till 24
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.grey[100],
                       foregroundColor: Colors.grey[600],
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12), // Minska från 16 till 12
                     ),
                   ),
                 ),
@@ -329,7 +332,7 @@ class _VisualTimerState extends State<VisualTimer>
               Container(
                 decoration: BoxDecoration(
                   color: _primaryColor,
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.circular(24), // Minska från 32 till 24
                   boxShadow: [
                     BoxShadow(
                       color: _primaryColor.withOpacity(0.3),
@@ -342,11 +345,11 @@ class _VisualTimerState extends State<VisualTimer>
                   onPressed: _isRunning ? _pauseTimer : _startTimer,
                   icon: Icon(
                     _isRunning ? Icons.pause : Icons.play_arrow,
-                    size: 36,
+                    size: 28, // Minska från 36 till 28
                   ),
                   style: IconButton.styleFrom(
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(16), // Minska från 20 till 16
                   ),
                 ),
               ),
